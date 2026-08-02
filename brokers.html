@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FleetView — Broker Outreach</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/opps.css">
+<style>
+  .mono-box { font-family:var(--mono); font-size:12.5px; background:var(--bg); border:1px solid var(--line-2); border-radius:7px; padding:8px 10px; color:var(--txt-2); }
+  .c-in { width:100%; padding:7px 9px; margin-bottom:6px; border-radius:7px; background:var(--bg); color:var(--txt); border:1px solid var(--line-2); font-size:13px; }
+  .c-in:focus{outline:none;border-color:var(--brand);}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;} .chip{font-size:11.5px;background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);padding:3px 9px;border-radius:20px;}
+  .lbl-min{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--txt-3);margin-bottom:5px;}
+  .mini-add{padding:3px 9px;font-size:11px;margin-left:8px;}
+  .log{display:flex;flex-direction:column;gap:5px;} .log-row{display:flex;justify-content:space-between;font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 10px;} .log-row b{font-family:var(--mono);}
+  /* slide-out panels */
+  .side-panel{position:fixed;top:0;right:-460px;width:420px;max-width:94vw;height:100%;background:var(--panel);border-left:1px solid var(--line-2);box-shadow:var(--shadow);transition:right .22s ease;z-index:50;display:flex;flex-direction:column;}
+  .side-panel.open{right:0;}
+  .side-panel header{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--bg-2);}
+  .side-panel header h2{margin:0;font-size:15px;} .side-panel .close{margin-left:auto;background:transparent;border:none;color:var(--txt-3);font-size:22px;cursor:pointer;}
+  .side-panel .pbody{padding:16px;overflow-y:auto;flex:1;}
+  .k-field{margin-bottom:10px;} .k-field label{display:block;font-size:11.5px;color:var(--txt-2);margin-bottom:4px;font-weight:600;}
+  .k-field input,.k-field select{width:100%;padding:8px 10px;border-radius:7px;background:var(--bg);color:var(--txt);border:1px solid var(--line-2);font-size:13px;}
+  .k-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .k-chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-2);margin:8px 0;} .k-chk input{width:15px;height:15px;accent-color:var(--brand);}
+  #k-out{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:12px;margin:12px 0;}
+  .k-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;} .k-row b{font-family:var(--mono);}
+  .k-row.total{border-top:1px solid var(--line-2);margin-top:5px;padding-top:8px;font-weight:800;font-size:16px;color:var(--brand);}
+  /* packet */
+  .pk-item{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);} .pk-dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+  .pk-title{font-weight:600;font-size:13.5px;} .pk-badge{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-left:6px;}
+  .pk-note{font-size:12px;color:var(--txt-3);margin:3px 0 5px;} .pk-link{font-size:12px;color:var(--brand);}
+  .nav-links{display:flex;gap:6px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><span class="mark">⇄</span><div>FleetView <small>Broker Outreach · SupplyNow</small></div></div>
+    <div class="spacer"></div>
+    <div class="nav-links">
+      <a class="btn ghost" href="index.html">Load Board</a>
+      <a class="btn ghost" href="opportunities.html">Opportunities</a>
+      <a class="btn ghost" href="prospects.html">Prospects</a>
+      <a class="btn ghost" href="brokers.html" style="background:var(--brand);border-color:var(--brand);color:var(--brand-ink)">Brokers</a>
+    </div>
+    <button class="btn" id="packet-open">📦 Carrier packet</button>
+    <button class="btn primary" id="calc-open">🧮 Freight calc</button>
+    <button class="btn" id="btn-refresh">↻</button>
+  </header>
+
+  <div class="grid">
+    <aside class="filters" id="filters">
+      <div class="fgroup">
+        <h3>Filter brokers</h3>
+        <div class="field"><label>Keyword</label><input id="f-keyword" placeholder="reefer, Cleveland…"></div>
+        <div class="field"><label>Type</label>
+          <select id="f-type"><option value="">Any</option>
+            <option value="cold-chain">Cold-chain</option>
+            <option value="local">Local / regional</option>
+            <option value="general">General / national</option>
+          </select></div>
+      </div>
+      <div class="filter-actions"><button class="btn primary" id="btn-search">Search</button><button class="btn" id="btn-clear">Clear</button></div>
+      <div class="fgroup" style="margin-top:18px">
+        <h3>Flow</h3>
+        <div class="muted" style="font-size:11.5px">Set up brokers → send the carrier packet → log quotes & trips. Use <b>Freight calc</b> for in-the-moment rate replies. <b>Carrier packet</b> shows your docs (COI on file, one-pager created, W-9 / authority to grab).</div>
+      </div>
+    </aside>
+
+    <section class="main">
+      <div class="toolbar">
+        <div class="count"><span id="count-num">0</span> brokers</div>
+        <div class="pipe-strip" id="pipe-strip"></div>
+      </div>
+      <div class="content" id="content">
+        <div class="tablewrap"><table>
+          <thead><tr><th>Broker</th><th>Type</th><th>Pays / credit</th><th>Contact</th><th>Activity</th><th>Status</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table></div>
+        <div class="drawer" id="drawer">
+          <header><div><div style="font-size:11px;letter-spacing:1px;color:var(--txt-3);text-transform:uppercase">Broker</div></div><button class="close" id="drawer-close">×</button></header>
+          <div class="body" id="drawer-body"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Freight calculator slide-out -->
+<div class="side-panel" id="calc-panel">
+  <header><h2>🧮 Freight calculator</h2><button class="close" id="calc-close">×</button></header>
+  <div class="pbody">
+    <div class="k-field"><label>Lane (for the quote text)</label><input id="k-lane" placeholder="Cleveland → Detroit"></div>
+    <div class="k-row2">
+      <div class="k-field"><label>Loaded miles</label><input id="k-miles" type="number" value="150"></div>
+      <div class="k-field"><label>Deadhead mi</label><input id="k-dh" type="number" value="0"></div>
+    </div>
+    <div class="k-row2">
+      <div class="k-field"><label>Equipment</label><select id="k-equip">
+        <option value="V">Dry Van ($1.69)</option><option value="BOX">Box Truck ($1.90)</option>
+        <option value="R" selected>Reefer ($2.35)</option><option value="F">Flatbed ($2.10)</option>
+        <option value="HS">Hotshot ($2.60)</option><option value="CV">Cargo Van ($1.80)</option></select></div>
+      <div class="k-field"><label>$/mile (override)</label><input id="k-rpm" type="number" step="0.01" placeholder="auto"></div>
+    </div>
+    <div class="k-chk"><input type="checkbox" id="k-fuel"><label for="k-fuel" style="margin:0">Add fuel surcharge</label></div>
+    <div class="k-row2">
+      <div class="k-field"><label>Fuel $/gal</label><input id="k-fpg" type="number" step="0.01" value="3.80"></div>
+      <div class="k-field"><label>MPG</label><input id="k-mpg" type="number" value="10"></div>
+    </div>
+    <div class="k-field"><label>Accessorials $</label><input id="k-acc" type="number" value="0"></div>
+    <div id="k-out"></div>
+    <div class="lbl-min">Quote reply (copy → paste to broker)</div>
+    <textarea id="k-quote" class="notes-area" style="min-height:90px"></textarea>
+    <button class="btn primary" id="k-copy" style="width:100%;justify-content:center;margin-top:8px">Copy quote reply</button>
+  </div>
+</div>
+
+<!-- Carrier packet slide-out -->
+<div class="side-panel" id="packet-panel">
+  <header><h2>📦 Carrier packet</h2><button class="close" id="packet-close">×</button></header>
+  <div class="pbody">
+    <div class="muted" style="font-size:12px;margin-bottom:10px">What to send a new broker. Green = on file, teal = created here, amber = go get it.</div>
+    <div id="packet-list"></div>
+    <a class="btn primary" href="carrier-onepager.html" target="_blank" rel="noopener" style="width:100%;justify-content:center;margin-top:14px">Open capabilities one-pager →</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="js/brokers-data.js"></script>
+<script src="js/brokers-app.js"></script>
+</body>
+</html>

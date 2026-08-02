@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SupplyNow — Carrier Capabilities</title>
+<style>
+  :root{ --brand:#00b4a6; --brand-2:#0d7d74; --ink:#1a1f28; --muted:#5b6672; --line:#e2e6ea; --accent:#4c8dff; }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#eceff2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);}
+  .toolbar{max-width:850px;margin:16px auto 0;display:flex;gap:8px;padding:0 12px;}
+  .toolbar button{padding:9px 16px;border-radius:8px;border:1px solid var(--brand);background:var(--brand);color:#fff;font-weight:700;cursor:pointer;font-size:14px;}
+  .toolbar .muted{margin-left:auto;color:var(--muted);font-size:12.5px;align-self:center;}
+  .page{max-width:850px;margin:12px auto 40px;background:#fff;padding:44px 48px;box-shadow:0 6px 24px rgba(0,0,0,.12);}
+  header.sheet{display:flex;align-items:flex-start;border-bottom:3px solid var(--brand);padding-bottom:16px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--accent));display:grid;place-items:center;color:#fff;font-size:24px;font-weight:800;}
+  .brand h1{margin:0;font-size:26px;letter-spacing:.3px;} .brand .tag{color:var(--brand-2);font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:1.5px;}
+  .reg{margin-left:auto;text-align:right;font-size:13px;color:var(--muted);line-height:1.6;}
+  .reg b{color:var(--ink);}
+  .lead{font-size:14px;line-height:1.65;color:#333;margin:18px 0 8px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:14px;}
+  h2.s{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--brand-2);border-bottom:1px solid var(--line);padding-bottom:5px;margin:18px 0 10px;}
+  ul.spec{list-style:none;padding:0;margin:0;font-size:13.5px;line-height:1.5;}
+  ul.spec li{padding:4px 0;display:flex;gap:8px;} ul.spec li::before{content:"▸";color:var(--brand);font-weight:800;}
+  .kv{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line);}
+  .kv span{color:var(--muted);} .kv b{color:var(--ink);}
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+  .why .card{background:#f4f8f8;border:1px solid #dcebe9;border-radius:9px;padding:11px 13px;}
+  .why .card b{color:var(--brand-2);display:block;margin-bottom:3px;font-size:13.5px;} .why .card span{font-size:12.5px;color:#444;}
+  .lanes{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
+  .lane{background:#eef6f5;border:1px solid #cfe6e3;color:var(--brand-2);font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:20px;}
+  footer.sheet{margin-top:24px;border-top:2px solid var(--brand);padding-top:14px;display:flex;justify-content:space-between;font-size:13px;color:var(--muted);flex-wrap:wrap;gap:8px;}
+  footer.sheet b{color:var(--ink);}
+  @media print{ body{background:#fff;} .toolbar{display:none;} .page{box-shadow:none;margin:0;max-width:100%;padding:24px 28px;} @page{margin:0.5in;} }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button onclick="window.print()">Print / Save as PDF</button>
+  <span class="muted">Save as PDF → attach to your broker carrier packet.</span>
+</div>
+
+<div class="page">
+  <header class="sheet">
+    <div class="brand">
+      <div class="mark">▣</div>
+      <div><h1>SupplyNow</h1><div class="tag">Asset-Based Refrigerated &amp; Dry Carrier</div></div>
+    </div>
+    <div class="reg">
+      <b>Supply Now Inc.</b><br>
+      <b>MC</b> 1660872 &nbsp; <b>DOT</b> 3976910<br>
+      2800 Euclid Ave, Suite 310<br>Cleveland, OH 44115
+    </div>
+  </header>
+
+  <p class="lead">
+    SupplyNow is a Cleveland-based, <b>asset-based refrigerated and dry carrier</b> specializing in
+    foodservice and cold-chain freight across Northeast Ohio and the Great Lakes. Every load ships with
+    <b>live GPS tracking and live temperature monitoring</b>, digital proof-of-delivery, and dynamic routing —
+    dedicated equipment and a driver your team knows, with no broker daisy-chain.
+  </p>
+
+  <div class="grid">
+    <div>
+      <h2 class="s">Equipment &amp; Fleet</h2>
+      <ul class="spec">
+        <li>Refrigerated (reefer) trucks — live temp control &amp; logging</li>
+        <li>Dry box trucks, 16'–26' — lift gate, pallet jack, load bars</li>
+        <li>Cargo / sprinter vans — expedited &amp; small-drop</li>
+        <li>Temperature range: frozen, refrigerated, and ambient</li>
+        <li>Full &amp; partial loads · palletized &amp; floor-loaded</li>
+        <li>No-touch, drop-trailer, and multi-stop capable</li>
+      </ul>
+      <h2 class="s">Service Area</h2>
+      <div class="lanes">
+        <span class="lane">Ohio</span><span class="lane">Pennsylvania</span><span class="lane">Michigan</span>
+        <span class="lane">Indiana</span><span class="lane">New York</span><span class="lane">Great Lakes region</span>
+      </div>
+      <div class="lanes" style="margin-top:8px">
+        <span class="lane">Cleveland → Detroit</span><span class="lane">Cleveland → Columbus</span>
+        <span class="lane">Cleveland → Pittsburgh</span><span class="lane">Cleveland → Chicago</span>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="s">Credentials &amp; Insurance</h2>
+      <div class="kv"><span>Operating Authority</span><b>MC 1660872 · Active</b></div>
+      <div class="kv"><span>USDOT</span><b>3976910</b></div>
+      <div class="kv"><span>Cargo Insurance</span><b>Motor Truck Cargo</b></div>
+      <div class="kv"><span>Auto Liability</span><b>On file — COI on request</b></div>
+      <div class="kv"><span>Freight types</span><b>Reefer · Frozen · Dry</b></div>
+      <div class="kv"><span>Tracking</span><b>Live GPS + Temperature</b></div>
+      <h2 class="s">Why SupplyNow</h2>
+      <div class="why">
+        <div class="card"><b>Live visibility</b><span>GPS + temperature link shared at pickup — see it in real time.</span></div>
+        <div class="card"><b>Asset-based</b><span>Our trucks, our drivers — consistent equipment, direct line.</span></div>
+        <div class="card"><b>Cold-chain built</b><span>Foodservice &amp; frozen is our core, not a side lane.</span></div>
+        <div class="card"><b>Appointment-tight</b><span>On-time to retail &amp; DC delivery windows, digital POD.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="sheet">
+    <div><b>Dispatch:</b> Mike Cook &nbsp;·&nbsp; 216-548-7070 &nbsp;·&nbsp; dispatch@supplynow.org</div>
+    <div><b>Supply Now Inc.</b> · MC 1660872 / DOT 3976910</div>
+  </footer>
+</div>
+</body>
+</html>
