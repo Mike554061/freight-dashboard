@@ -52,9 +52,9 @@ function rowHtml(b){
   return `<tr data-id="${b.id}">
     <td><div class="lane">${b.company}</div><div class="sub">${b.hq}</div></td>
     <td><span class="pill" style="background:${TYPE_BADGE[b.type]}22;color:${TYPE_BADGE[b.type]}">${b.type}</span></td>
-    <td class="sub">${b.daysToPay?b.daysToPay+'d':'—'}<div class="sub">${b.creditNote||''}</div></td>
+    <td class="sub internal-only">${b.daysToPay?b.daysToPay+'d':'—'}<div class="sub">${b.creditNote||''}</div></td>
     <td class="sub">${contact}</td>
-    <td class="sub">${q} quote${q!==1?'s':''} · ${t} trip${t!==1?'s':''}</td>
+    <td class="sub internal-only">${q} quote${q!==1?'s':''} · ${t} trip${t!==1?'s':''}</td>
     <td><span class="status-pill" style="border-color:${BK_COLOR[b.status]};color:${BK_COLOR[b.status]}">${b.status}</span></td>
   </tr>`;
 }
@@ -68,7 +68,7 @@ function openDrawer(id){
   const quotes=rec.quotes||[], trips=rec.trips||[];
   $('#drawer-body').innerHTML=`
     <div class="dl-lane">${b.company}</div>
-    <div class="dl-dates">${b.hq} · <span class="pill" style="background:${TYPE_BADGE[b.type]}22;color:${TYPE_BADGE[b.type]}">${b.type}</span> · pays ~${b.daysToPay||'?'}d</div>
+    <div class="dl-dates">${b.hq} · <span class="pill" style="background:${TYPE_BADGE[b.type]}22;color:${TYPE_BADGE[b.type]}">${b.type}</span><span class="internal-only"> · pays ~${b.daysToPay||'?'}d</span></div>
     <div style="font-size:13px;margin-top:10px">${b.about}</div>
     ${b.url?`<a class="btn ghost" href="${b.url}" target="_blank" rel="noopener" style="width:100%;justify-content:center;margin-top:8px">Broker site ↗</a>`:''}
     <div class="sec-title">Lanes they run</div><div class="chips">${(b.lanes||[]).map(l=>`<span class="chip">${l}</span>`).join('')}</div>
@@ -86,16 +86,16 @@ function openDrawer(id){
       <button class="btn" id="copy-mail" style="width:100%;justify-content:center;margin-top:8px">Copy setup email</button>
     </div>
 
-    <div class="sec-title">Quote log <button class="btn mini-add" id="add-quote">+ quote</button></div>
-    <div class="log" id="quote-log">${quotes.length?quotes.map(logQuoteRow).join(''):'<div class="muted" style="font-size:12px">No quotes logged.</div>'}</div>
+    <div class="sec-title internal-only">Quote log <button class="btn mini-add" id="add-quote">+ quote</button></div>
+    <div class="log internal-only" id="quote-log">${quotes.length?quotes.map(logQuoteRow).join(''):'<div class="muted" style="font-size:12px">No quotes logged.</div>'}</div>
 
-    <div class="sec-title">Trip log <button class="btn mini-add" id="add-trip">+ trip</button></div>
-    <div class="log" id="trip-log">${trips.length?trips.map(logTripRow).join(''):'<div class="muted" style="font-size:12px">No trips logged.</div>'}</div>
+    <div class="sec-title internal-only">Trip log <button class="btn mini-add" id="add-trip">+ trip</button></div>
+    <div class="log internal-only" id="trip-log">${trips.length?trips.map(logTripRow).join(''):'<div class="muted" style="font-size:12px">No trips logged.</div>'}</div>
 
-    <div class="sec-title">Pipeline</div>
-    <div class="status-row">${BK_STATUS.map(s=>`<button class="stbtn ${b.status===s?'on':''}" data-s="${s}" style="--c:${BK_COLOR[s]}">${s}</button>`).join('')}</div>
-    <div class="sec-title">Notes</div>
-    <textarea id="b-notes" class="notes-area" placeholder="Setup status, rep, lane notes…">${rec.notes||''}</textarea>`;
+    <div class="sec-title internal-only">Pipeline</div>
+    <div class="status-row internal-only">${BK_STATUS.map(s=>`<button class="stbtn ${b.status===s?'on':''}" data-s="${s}" style="--c:${BK_COLOR[s]}">${s}</button>`).join('')}</div>
+    <div class="sec-title internal-only">Notes</div>
+    <textarea id="b-notes" class="notes-area internal-only" placeholder="Setup status, rep, lane notes…">${rec.notes||''}</textarea>`;
 
   $$('#drawer .stbtn').forEach(x=>x.onclick=()=>{ setRec(id,{status:x.dataset.s}); openDrawer(id); render(); toast('→ '+x.dataset.s,'good'); });
   $('#b-notes').onchange=e=>{ setRec(id,{notes:e.target.value}); toast('Note saved','good'); };
@@ -118,7 +118,8 @@ function addTrip(id){ const lane=prompt('Lane run?'); if(!lane)return; const rat
 function calcInputs(){
   return { miles:$('#k-miles').value, equip:$('#k-equip').value, equipLabel:EQUIP_LABEL[$('#k-equip').value],
     rpm:$('#k-rpm').value, deadhead:$('#k-dh').value, accessorials:$('#k-acc').value,
-    fuelSurcharge:$('#k-fuel').checked, fuelPerGal:$('#k-fpg').value, mpg:$('#k-mpg').value };
+    fuelSurcharge:$('#k-fuel').checked, fuelPerGal:$('#k-fpg').value, mpg:$('#k-mpg').value,
+    laborHrs:$('#k-lhrs').value, laborRate:$('#k-lrate').value, vehPerMi:$('#k-veh').value, overhead:$('#k-oh').value };
 }
 function runCalc(){
   const o=calcInputs(); const r=calcRate(o);
@@ -127,8 +128,16 @@ function runCalc(){
     ${r.dh?`<div class="k-row"><span>Deadhead ${r.dh}mi</span><b>${money(r.dhCost)}</b></div>`:''}
     ${r.fuel?`<div class="k-row"><span>Fuel surcharge</span><b>${money(r.fuel)}</b></div>`:''}
     ${r.accessorials?`<div class="k-row"><span>Accessorials</span><b>${money(r.accessorials)}</b></div>`:''}
-    <div class="k-row total"><span>All-in</span><b>${money(r.total)}</b></div>
+    <div class="k-row total"><span>All-in (quote)</span><b>${money(r.total)}</b></div>
     <div class="k-row"><span>Effective $/mi</span><b>$${r.allInRpm.toFixed(2)}</b></div>`;
+  const mCls = r.marginPct>=35?'good':r.marginPct>=20?'mid':'low';
+  $('#k-cost').innerHTML=`
+    <div class="k-row"><span>Fuel (${r.laborHrs}h routed)</span><b>${money(r.costFuel)}</b></div>
+    <div class="k-row"><span>Labor</span><b>${money(r.labor)}</b></div>
+    <div class="k-row"><span>Vehicle</span><b>${money(r.vehicle)}</b></div>
+    <div class="k-row"><span>Overhead</span><b>${money(r.overhead)}</b></div>
+    <div class="k-row total" style="color:#f2a541"><span>Cost</span><b>${money(r.cost)}</b></div>
+    <div class="k-row total" style="color:${r.profit>=0?'#3fb950':'#f85149'}"><span>Profit</span><b>${money(r.profit)} · ${r.marginPct.toFixed(1)}%</b></div>`;
   const lane=$('#k-lane').value.trim();
   $('#k-quote').value=quoteText(o,r,lane);
 }

@@ -94,7 +94,22 @@ function calcRate(o) {
   const dhCost = dh * (rpm * 0.5);            // recover half-rate on deadhead
   const total = Math.round(linehaul + fuel + accessorials + dhCost);
   const allInRpm = miles ? total / miles : 0;
-  return { miles, dh, rpm, linehaul:Math.round(linehaul), fuel, accessorials, dhCost:Math.round(dhCost), total, allInRpm };
+
+  // INTERNAL cost model (SupplyNow Dispatch & Trip sheet)
+  const costFuel = Math.round(((miles + dh) / mpg) * fuelPerGal);       // fuel is always a cost
+  const laborRate = +o.laborRate || 21.50;                              // Mon–Fri labor
+  const laborHrs  = (o.laborHrs !== undefined && o.laborHrs !== '' && o.laborHrs !== null)
+                    ? +o.laborHrs : Math.round(((miles / 45) + 1) * 10) / 10;  // drive @45mph + 1h handling
+  const labor     = Math.round(laborHrs * laborRate);
+  const vehPerMi  = +o.vehPerMi || 0.16;
+  const vehicle   = Math.round((miles + dh) * vehPerMi);
+  const overhead  = (o.overhead !== undefined && o.overhead !== '' && o.overhead !== null) ? +o.overhead : 100;
+  const cost      = costFuel + labor + vehicle + overhead;
+  const profit    = total - cost;
+  const marginPct = total ? (profit / total) * 100 : 0;
+
+  return { miles, dh, rpm, linehaul:Math.round(linehaul), fuel, accessorials, dhCost:Math.round(dhCost),
+           total, allInRpm, costFuel, laborHrs, labor, vehicle, overhead, cost, profit, marginPct };
 }
 
 function quoteText(o, r, lane) {

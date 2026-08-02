@@ -109,7 +109,7 @@ const COLS = [
 function renderTable() {
   $('#thead').innerHTML = '<tr>' + COLS.map(c=>{
     const active=O.sortKey===c.k; const arr=active?`<span class="arrow">${O.sortDir==='asc'?'▲':'▼'}</span>`:'';
-    return `<th data-k="${c.k}">${c.label} ${arr}</th>`;
+    return `<th data-k="${c.k}" class="${c.k==='worthScore'?'internal-only':''}">${c.label} ${arr}</th>`;
   }).join('') + '</tr>';
   $$('#thead th').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k;
@@ -124,7 +124,7 @@ function renderTable() {
 function rowHtml(o) {
   const due=dueLabel(o.dueDate);
   return `<tr data-id="${o.id}">
-    <td><span class="score ${scoreCls(o.worthScore)}">${o.worthScore}</span></td>
+    <td class="internal-only"><span class="score ${scoreCls(o.worthScore)}">${o.worthScore}</span></td>
     <td class="age ${due.cls}">${due.txt}</td>
     <td><div class="lane">${o.title}</div><div class="sub">${o.agency}</div></td>
     <td><span class="pill eq" title="${o.naicsLabel}">${o.naics}</span></td>
@@ -162,12 +162,12 @@ function openDrawer(id) {
   $('#drawer-body').innerHTML = `
     <div class="dl-lane">${o.title}</div>
     <div class="dl-dates">${o.agency}</div>
-    <div class="score-box ${scoreCls(o.worthScore)}">
+    <div class="score-box internal-only ${scoreCls(o.worthScore)}">
       <div class="score-big">${o.worthScore}<span>/100</span></div>
       <div class="score-label">${o.worthLabel}</div>
     </div>
-    <div class="sec-title">Why this score</div>
-    <ul class="reasons">${o.worthReasons.map(r=>`<li>${r}</li>`).join('')}</ul>
+    <div class="sec-title internal-only">Why this score</div>
+    <ul class="reasons internal-only">${o.worthReasons.map(r=>`<li>${r}</li>`).join('')}</ul>
     <div class="kv">
       <div class="cell"><div class="k">Due</div><div class="v ${due.cls==='low'?'rpm low':''}">${o.dueDate||'—'} <span class="sub">(${due.txt})</span></div></div>
       <div class="cell"><div class="k">Est. Value</div><div class="v">${money(o.value)}</div></div>

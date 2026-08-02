@@ -190,6 +190,14 @@ td { padding:11px 12px; font-size:13px; vertical-align:middle; white-space:nowra
 .saved-item .del { background:transparent; border:none; color:var(--txt-3); font-size:15px; }
 .saved-item .del:hover { color:var(--bad); }
 
+/* ---------- Global view mode (Internal / Broker-facing) ---------- */
+.broker-facing .internal-only { display:none !important; }
+.broker-only { display:none; }
+.broker-facing .broker-only { display:revert; }
+.vm-btn { border-color:var(--warn); color:var(--warn); }
+body.broker-facing .vm-btn { border-color:var(--good); color:var(--good); }
+.broker-facing .app::before { content:'BROKER-FACING VIEW — safe to screen-share'; position:fixed; bottom:0; left:0; right:0; z-index:70; text-align:center; font-size:11px; font-weight:700; letter-spacing:.5px; padding:3px; background:rgba(63,185,80,.14); color:var(--good); border-top:1px solid rgba(63,185,80,.3); }
+
 /* Leaflet dark tweaks */
 .leaflet-popup-content-wrapper { background:var(--bg-2); color:var(--txt); border-radius:8px; }
 .leaflet-popup-tip { background:var(--bg-2); }

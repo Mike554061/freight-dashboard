@@ -57,7 +57,7 @@ function renderPipeStrip(){
 
 const COLS=[{k:'fitScore',l:'Fit'},{k:'company',l:'Company'},{k:'type',l:'Type'},{k:'category',l:'Freight'},{k:'city',l:'City'},{k:'contact',l:'Contact'},{k:'status',l:'Status'}];
 function renderTable(){
-  $('#thead').innerHTML='<tr>'+COLS.map(c=>{const a=P.sortKey===c.k;return `<th data-k="${c.k}">${c.l} ${a?`<span class="arrow">${P.sortDir==='asc'?'▲':'▼'}</span>`:''}</th>`;}).join('')+'</tr>';
+  $('#thead').innerHTML='<tr>'+COLS.map(c=>{const a=P.sortKey===c.k;return `<th data-k="${c.k}" class="${c.k==='fitScore'?'internal-only':''}">${c.l} ${a?`<span class="arrow">${P.sortDir==='asc'?'▲':'▼'}</span>`:''}</th>`;}).join('')+'</tr>';
   $$('#thead th').forEach(th=>th.onclick=()=>{const k=th.dataset.k; if(P.sortKey===k)P.sortDir=P.sortDir==='asc'?'desc':'asc'; else{P.sortKey=k;P.sortDir=k==='fitScore'?'desc':'asc';} sortNow(); render();});
   const tb=$('#tbody');
   if(!P.filtered.length){ tb.innerHTML=`<tr><td colspan="${COLS.length}"><div class="empty">No prospects match.</div></td></tr>`; return; }
@@ -67,7 +67,7 @@ function renderTable(){
 function rowHtml(p){
   const contact = p.contact.email ? p.contact.name||p.contact.email : '<span class="muted">enrich</span>';
   return `<tr data-id="${p.id}">
-    <td><span class="score ${fitCls(p.fitScore)}">${p.fitScore}</span></td>
+    <td class="internal-only"><span class="score ${fitCls(p.fitScore)}">${p.fitScore}</span></td>
     <td><div class="lane">${p.company}${p.warm?' <span class="pill" style="background:rgba(63,185,80,.15);color:#3fb950">warm</span>':''}</div><div class="sub">${p.about.slice(0,54)}…</div></td>
     <td class="sub">${TYPE_LABEL[p.type]||p.type}</td>
     <td>${catBadge(p.category)}</td>
@@ -119,18 +119,18 @@ function openDrawer(id, angle){
   $('#drawer-body').innerHTML=`
     <div class="dl-lane">${p.company}${p.warm?' <span class="pill" style="background:rgba(63,185,80,.15);color:#3fb950">warm</span>':''}</div>
     <div class="dl-dates">${TYPE_LABEL[p.type]||p.type} · ${p.city}, ${p.state} · ${catBadge(p.category)}</div>
-    <div class="score-box ${fitCls(p.fitScore)}"><div class="score-big">${p.fitScore}<span>/100</span></div><div class="score-label">${p.fitLabel} fit</div></div>
+    <div class="score-box internal-only ${fitCls(p.fitScore)}"><div class="score-big">${p.fitScore}<span>/100</span></div><div class="score-label">${p.fitLabel} fit</div></div>
 
-    <div class="sec-title">Fit breakdown</div>
-    <div class="bars">
+    <div class="sec-title internal-only">Fit breakdown</div>
+    <div class="bars internal-only">
       ${bar('Commodity', p.subScores.commodity)}
       ${bar('Need', p.subScores.need)}
       ${bar('Proximity', p.subScores.proximity)}
       ${bar('Winnability', p.subScores.winnability)}
     </div>
 
-    <div class="sec-title">Account intelligence</div>
-    <div class="broker-card">
+    <div class="sec-title internal-only">Account intelligence</div>
+    <div class="broker-card internal-only">
       <div class="kv2"><span>Own fleet</span><b>${it.ownFleet}</b></div>
       <div class="kv2"><span>Best angle</span><b>${it.approach}</b></div>
       <div class="kv2"><span>Deal size</span><b>${it.dealPotential}</b></div>
