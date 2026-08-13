@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FleetView — Bid Room</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/opps.css">
+<style>
+  .nav-links{display:flex;gap:6px;}
+  .sec-head{font-size:15px;font-weight:700;margin:4px 0 12px;}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+  .kpi{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+  .kv-n{font-size:20px;font-weight:800;font-family:var(--mono);} .kv-l{font-size:11px;color:var(--txt-3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+  .two-col{display:grid;grid-template-columns:1fr 1.3fr;gap:22px;margin-bottom:18px;}
+  .ybars{display:flex;align-items:flex-end;gap:8px;height:130px;padding:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;}
+  .ybar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;}
+  .yb-fill{width:70%;background:linear-gradient(180deg,var(--brand),var(--brand-2));border-radius:4px 4px 0 0;min-height:4px;}
+  .yb-lab{font-size:10.5px;color:var(--txt-3);margin-top:5px;}
+  .comp-list{display:flex;flex-direction:column;gap:7px;}
+  .comp{display:grid;grid-template-columns:1fr;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+  .comp-n{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .comp-bar{height:5px;background:var(--bg-3);border-radius:4px;overflow:hidden;} .comp-bar span{display:block;height:100%;background:var(--accent);}
+  .comp-v{font-size:11px;color:var(--txt-3);font-family:var(--mono);}
+  .award-list{display:flex;flex-direction:column;gap:6px;}
+  .aw{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:12.5px;}
+  .aw .mono{font-family:var(--mono);color:var(--good);}
+  #bid-panel{background:var(--bg-2);border:1px solid var(--line-2);border-radius:12px;padding:16px;margin-top:6px;position:sticky;top:12px;}
+  #bid-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  #bid-inputs .field label{display:block;font-size:11px;color:var(--txt-2);margin-bottom:4px;font-weight:600;}
+  #bid-inputs input{width:100%;padding:8px 10px;border-radius:7px;background:var(--bg);color:var(--txt);border:1px solid var(--line-2);font-size:13px;}
+  @media(max-width:1100px){ .kpis{grid-template-columns:repeat(2,1fr);} .two-col{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><span class="mark">◎</span><div>FleetView <small>Bid Room · SupplyNow</small></div></div>
+    <div class="spacer"></div>
+    <div class="nav-links">
+      <a class="btn ghost" href="opportunities.html">Opportunities</a>
+      <a class="btn ghost" href="bidroom.html" style="background:var(--brand);border-color:var(--brand);color:var(--brand-ink)">Bid Room</a>
+      <a class="btn ghost" href="prospects.html">Prospects</a>
+      <a class="btn ghost" href="brokers.html">Brokers</a>
+    </div>
+    <span id="vm-host"></span>
+    <span class="mode-badge live" id="mode-badge" style="background:rgba(63,185,80,.15);color:var(--good);border:1px solid rgba(63,185,80,.3)">● Live · USASpending</span>
+  </header>
+
+  <div class="grid">
+    <aside class="filters">
+      <div class="fgroup">
+        <h3>Market to read</h3>
+        <div class="field"><label>NAICS</label><select id="f-naics"></select></div>
+        <div class="field"><label>Keyword (optional)</label><input id="f-keyword" placeholder="cold, refrigerated, medical…"></div>
+        <div class="field"><label>Years back</label><input id="f-years" type="number" value="4"></div>
+        <button class="btn primary" id="btn-search" style="width:100%;justify-content:center;margin-top:4px">Analyze market</button>
+      </div>
+      <div class="fgroup" style="margin-top:16px">
+        <h3 class="internal-only">🔒 Bid Strategist</h3>
+        <div id="bid-panel" class="internal-only">
+          <div id="bid-inputs">
+            <div class="field"><label>Target contract $</label><input id="b-target" type="number" placeholder="median"></div>
+            <div class="field"><label>Your cost $</label><input id="b-cost" type="number" placeholder="cost to perform"></div>
+            <div class="field"><label>Min margin %</label><input id="b-margin" type="number" value="20"></div>
+          </div>
+          <div id="bid-out" style="margin-top:12px"></div>
+        </div>
+        <div class="broker-only muted" style="font-size:12px">Bid strategy is internal-only.</div>
+      </div>
+      <div class="fgroup" style="margin-top:14px">
+        <div class="muted" style="font-size:11px">Data: USASpending.gov federal award history (free, live). Trend = top-award view; use it to read who wins, at what size, and where to price.</div>
+      </div>
+    </aside>
+
+    <section class="main">
+      <div class="toolbar"><div class="count">Bid Room — federal market read</div></div>
+      <div class="content"><div class="tablewrap" style="padding:18px"><div id="results"></div></div></div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="js/viewmode.js"></script>
+<script src="js/bidroom-data.js"></script>
+<script src="js/bidroom-app.js"></script>
+</body>
+</html>
