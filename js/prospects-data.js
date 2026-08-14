@@ -72,6 +72,34 @@ const INTEL_OVERRIDES = {
   'Northern Haserot': { likelyLanes:['Bedford Heights → NE Ohio restaurants','Inbound center-of-plate → their DC'] },
 };
 
+/* ---------- Apollo-sourced live leads (Greater Cleveland medical + cold-chain) ---------- */
+const APOLLO_LEADS = [
+  { company:'Euro USA', type:'distributor', category:'reefer', city:'Cleveland', state:'OH',
+    about:'Specialty + frozen/refrigerated food importer-distributor (~$67M rev). Reefer volume across the Midwest.',
+    signals:['~$67M revenue','Frozen/refrigerated import distro','Steady headcount growth'], url:'http://www.euro-usa.com',
+    contact:{ name:'', title:'Logistics / Operations Manager', email:'', phone:'800-999-5939', linkedin:'' } },
+  { company:'Blue Ribbon Meats', type:'manufacturer', category:'reefer', city:'Cleveland', state:'OH',
+    about:'Meat processor & distributor since 1948; +42% headcount over 24mo — scaling outbound.',
+    signals:['Meat processor → reefer outbound','+42% headcount 24mo (scaling)','Est. 1948'], url:'http://www.blueribbonmeats.com',
+    contact:{ name:'', title:'Plant / Logistics Manager', email:'', phone:'216-631-8850', linkedin:'' } },
+  { company:'Catanese Classics', type:'distributor', category:'reefer', city:'Cleveland', state:'OH',
+    about:'Seafood & specialty distributor — refrigerated/frozen daily.',
+    signals:['Seafood → strict cold-chain','Specialty foodservice'], url:'http://www.cataneseclassics.com',
+    contact:{ name:'', title:'Operations Manager', email:'', phone:'216-696-0080', linkedin:'' } },
+  { company:'Compass Health Brands', type:'manufacturer', category:'dry', city:'Cleveland', state:'OH',
+    about:'Medical device / DME manufacturer (~$58M rev, Drive Medical family) — outbound to healthcare DCs.',
+    signals:['~$58M revenue','DME manufacturer → carrier-dependent','Medical device outbound'], url:'http://www.compasshealthbrands.com',
+    contact:{ name:'', title:'Supply Chain / Logistics Mgr', email:'', phone:'800-376-7263', linkedin:'' } },
+  { company:'Health Aid of Ohio', type:'distributor', category:'both', city:'Cleveland', state:'OH',
+    about:'Medical equipment distributor (~$14.5M rev) — DME + home medical delivery.',
+    signals:['~$14.5M revenue','Medical equipment distro','Home-medical delivery need'], url:'http://www.healthaidofohio.com',
+    contact:{ name:'', title:'Operations Manager', email:'', phone:'216-252-3900', linkedin:'' } },
+  { company:'Mansa Medical', type:'distributor', category:'both', city:'Cleveland', state:'OH',
+    about:'Medical equipment distributor — fast-growing (+25% headcount 12mo).',
+    signals:['+25% headcount 12mo (hot)','Medical equipment distro','Scaling'], url:'http://www.mansamedical.com',
+    contact:{ name:'', title:'Operations Manager', email:'', phone:'833-626-7263', linkedin:'' } },
+];
+
 /* ---------- Real NE-Ohio shipper targets ---------- */
 function buildProspects() {
   const R = [
@@ -112,12 +140,17 @@ function buildProspects() {
       about:'National broadline foodservice distributor; large fleet but uses carriers for overflow & dedicated.',
       signals:['Scale → overflow + dedicated','Redistribution lanes'], url:'https://www.sysco.com/Cleveland' },
   ];
-  return R.map((p, i) => {
+  const seeded = R.map((p, i) => {
     const intel = Object.assign(deriveIntel(p), INTEL_OVERRIDES[p.company] || {});
     return Object.assign(p, { id:'pr_'+(70000+i), source:'research',
       contact:{ name:'', title:'Logistics / Transportation Manager', email:'', phone:'', linkedin:'' }, intel },
       scoreProspect(p));
   });
+  const apollo = APOLLO_LEADS.map((p, i) => {
+    const intel = Object.assign(deriveIntel(p), INTEL_OVERRIDES[p.company] || {});
+    return Object.assign(p, { id:'ap_'+(80000+i), source:'apollo', intel }, scoreProspect(p));
+  });
+  return seeded.concat(apollo);
 }
 
 /* =====================  OUTREACH ENGINE  ===================== */

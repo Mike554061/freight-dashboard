@@ -65,10 +65,11 @@ function renderTable(){
   $$('#tbody tr').forEach(tr=>tr.onclick=()=>openDrawer(tr.dataset.id));
 }
 function rowHtml(p){
-  const contact = p.contact.email ? p.contact.name||p.contact.email : '<span class="muted">enrich</span>';
+  const contact = p.contact.email ? (p.contact.name||p.contact.email) : (p.contact.phone || '<span class="muted">enrich</span>');
+  const srcTag = p.source==='apollo' ? ' <span class="pill" style="background:rgba(0,180,166,.14);color:#00b4a6">Apollo</span>' : '';
   return `<tr data-id="${p.id}">
     <td class="internal-only"><span class="score ${fitCls(p.fitScore)}">${p.fitScore}</span></td>
-    <td><div class="lane">${p.company}${p.warm?' <span class="pill" style="background:rgba(63,185,80,.15);color:#3fb950">warm</span>':''}</div><div class="sub">${p.about.slice(0,54)}…</div></td>
+    <td><div class="lane">${p.company}${p.warm?' <span class="pill" style="background:rgba(63,185,80,.15);color:#3fb950">warm</span>':''}${srcTag}</div><div class="sub">${p.about.slice(0,54)}…</div></td>
     <td class="sub">${TYPE_LABEL[p.type]||p.type}</td>
     <td>${catBadge(p.category)}</td>
     <td class="sub">${p.city}, ${p.state}</td>
