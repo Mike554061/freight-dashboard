@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FleetView — Onboarding</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/opps.css">
+<style>
+  .nav-links{display:flex;gap:6px;}
+  .c-in{width:100%;padding:7px 9px;border-radius:7px;background:var(--bg);color:var(--txt);border:1px solid var(--line-2);font-size:13px;}
+  .c-in:focus{outline:none;border-color:var(--brand);}
+  .mono-box{font-family:var(--mono);font-size:12.5px;background:var(--bg);border:1px solid var(--line-2);border-radius:7px;padding:8px 10px;color:var(--txt-2);}
+  .lbl-min{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--txt-3);margin-bottom:4px;}
+  .sec-head{font-size:16px;font-weight:700;}
+  #ob-types{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .ob-type{padding:9px 14px;border-radius:20px;border:1px solid var(--line-2);background:var(--bg-3);color:var(--txt-2);font-weight:600;font-size:13px;cursor:pointer;}
+  .ob-type:hover{border-color:var(--brand);color:var(--txt);}
+  .ob-type.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);}
+  .ob-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:14px;}
+  .ob-head .btn{margin-left:auto;flex-shrink:0;}
+  .ob-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;}
+  .ob-doc{background:#fff;color:#1a1f28;border-radius:10px;padding:20px;}
+  .doc-brand{display:flex;align-items:center;gap:8px;font-size:14px;border-bottom:2px solid var(--brand);padding-bottom:10px;margin-bottom:12px;color:#1a1f28;}
+  .doc-brand .mark{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--brand),var(--accent));display:grid;place-items:center;color:#fff;font-size:13px;}
+  .ob-table{width:100%;border-collapse:collapse;}
+  .ob-table td{padding:5px 4px;border-bottom:1px solid #eef1f4;font-size:12.5px;vertical-align:top;}
+  .ob-table .k{color:#68727e;width:42%;} .ob-table .v{font-weight:600;color:#1a1f28;}
+  .ob-table .v.gap{color:#c0392b;font-weight:700;}
+  .ob-refs{margin-top:12px;font-size:12.5px;color:#333;} .ob-refs ul{margin:5px 0 0 16px;padding:0;} .ob-refs li{margin:2px 0;}
+  .ob-attach{margin-top:12px;font-size:12px;color:#333;} .ob-attach a{color:var(--brand-2);}
+  .ck-list{display:flex;flex-direction:column;gap:6px;}
+  .ck{display:flex;align-items:center;gap:9px;font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 10px;}
+  .ck-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;} .ck-lab{flex:1;} .ck-badge{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;}
+  .ob-gaps{background:rgba(242,165,65,.08);border:1px solid rgba(242,165,65,.3);border-radius:9px;padding:11px 13px;margin-top:12px;font-size:12.5px;}
+  .ob-gaps ul{margin:5px 0 8px 16px;padding:0;}
+  .ob-cover{margin-top:6px;}
+  @media print{ header,.filters,#ob-types,.ob-side,.ob-head .btn,.toast{display:none!important;} .ob-grid{grid-template-columns:1fr;} .ob-doc{padding:8px;} .app,.grid,.main,.content{display:block!important;overflow:visible!important;height:auto!important;} }
+  @media(max-width:1000px){ .ob-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><span class="mark">◪</span><div>FleetView <small>Onboarding · SupplyNow</small></div></div>
+    <div class="spacer"></div>
+    <div class="nav-links">
+      <a class="btn ghost" href="opportunities.html">Opportunities</a>
+      <a class="btn ghost" href="bidroom.html">Bid Room</a>
+      <a class="btn ghost" href="prospects.html">Prospects</a>
+      <a class="btn ghost" href="brokers.html">Brokers</a>
+      <a class="btn ghost" href="onboarding.html" style="background:var(--brand);border-color:var(--brand);color:var(--brand-ink)">Onboarding</a>
+    </div>
+    <span id="vm-host"></span>
+  </header>
+  <div class="grid">
+    <aside class="filters">
+      <div class="fgroup">
+        <h3>Buyer type</h3>
+        <div id="ob-types" style="flex-direction:column"></div>
+      </div>
+      <div class="fgroup" style="margin-top:8px">
+        <div class="muted" style="font-size:11px">Pick a buyer → get a completed packet, required-docs checklist, and cover email. Your COI + one-pager attach automatically. Gaps (EIN/UEI/bank) are flagged — add them to the profile once and every packet fills.</div>
+      </div>
+    </aside>
+    <section class="main">
+      <div class="toolbar"><div class="count">Vendor Onboarding — packet builder</div></div>
+      <div class="content"><div class="tablewrap" style="padding:18px"><div id="ob-body"></div></div></div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="js/viewmode.js"></script>
+<script src="js/onboarding-data.js"></script>
+<script src="js/onboarding-app.js"></script>
+</body>
+</html>
