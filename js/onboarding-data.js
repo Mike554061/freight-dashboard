@@ -29,9 +29,9 @@ const SN_PROFILE = {
   coiDoc:'https://drive.google.com/file/d/1B8X19GoPGAXJvdaTx3uIbh-BHD3lDzBw/view',
   onePager:'carrier-onepager.html',
   references:[
-    'US Foods — Detroit redistribution lane (recurring reefer)',
-    'Pizza Bagel Lady (Terry Thomsen) — recurring cold-chain',
-    'Summit Academy SNAP — 4-campus daily delivery',
+    'SNAP Gourmet Foods — Recurring White Glove',
+    'Centerline Logistics Corp — Multi-Modal Capacity Partner',
+    'Pizza Bagel Lady — Producer Transportation, First Mile / Mid Mile',
   ],
   // GAPS — filled from the PRIVATE (device-only) profile below; never hardcoded here.
   ein:'', uei:'', cage:'', factoring:'',
@@ -47,21 +47,19 @@ function bankLine(p){ return p.bankName ? `${p.bankName} · Routing ${p.routing|
 
 /* Buyer types: what each requires, which map to SN fields, and the gaps */
 const BUYER_TYPES = {
+  carrier: { label:'Carrier packet',
+    intro:'General carrier introduction packet — send to any broker, shipper, or agency to get set up.',
+    needs:[
+      ['Legal name + MC/DOT','have'],['W-9','gap-ein'],['COI (Auto + Cargo)','have-coi'],
+      ['Capabilities one-pager','have-1p'],['Equipment list','have'],['References','have'],['Primary contact','have'],
+    ] },
   broker: { label:'Broker carrier packet',
     intro:'Carrier setup with a freight broker (e.g., TQL, Echo, a NE-Ohio broker).',
     needs:[
       ['Legal name + MC/DOT','have'],['W-9','gap-ein'],
       ['COI — Auto Liability + Cargo, broker as Certificate Holder','have-coi'],
       ['Signed broker–carrier agreement','buyer'],
-      ['Remittance / factoring info (NOA if factored)','gap-bank'],
       ['Equipment list','have'],['Primary contact','have'],
-    ] },
-  federal: { label:'Federal (SAM.gov) vendor',
-    intro:'Register to bid federal contracts (VA, USDA, DLA, etc.).',
-    needs:[
-      ['SAM.gov registration + UEI','gap-uei'],['CAGE code','gap-cage'],
-      ['NAICS codes','have'],['Small-business size self-cert','have'],
-      ['Reps & Certifications (SAM)','buyer'],['Banking / ACH (in SAM)','gap-bank'],['POC','have'],
     ] },
   hospital: { label:'Hospital / GPO vendor',
     intro:'Vendor credentialing for a hospital system or GPO (Cleveland Clinic, UH, MetroHealth).',
@@ -88,7 +86,6 @@ const BUYER_TYPES = {
 /* Completed packet field rows (label → value) drawn from the profile */
 function packetRows(typeKey) {
   const p = profile();
-  const bank = bankLine(p);
   const base = [
     ['Legal business name', p.legalName],
     ['DBA', p.dba],
@@ -106,16 +103,7 @@ function packetRows(typeKey) {
     ['NAICS codes', p.naics],
     ['Insurance — cargo', `${p.insCargo} (${p.insCarrier})`],
     ['Insurance — auto', p.insAuto],
-    ['EIN (Tax ID)', p.ein || '⚠ PROVIDE — enter in My Info'],
   ];
-  if (typeKey === 'federal') base.push(
-    ['SAM UEI', p.uei || '⚠ PROVIDE — register at SAM.gov'],
-    ['CAGE code', p.cage || '⚠ PROVIDE — assigned during SAM reg'],
-    ['Business size', 'Small Business'],
-    ['ACH / banking', bank || '⚠ PROVIDE — enter in My Info']);
-  if (typeKey === 'broker') base.push(
-    ['Factoring / remittance', p.factoring || (bank ? 'Direct pay — ' + bank : '⚠ PROVIDE — direct-pay or factor + NOA')]);
-  if ((typeKey === 'hospital' || typeKey === 'shipper') && bank) base.push(['ACH / remittance', bank]);
   if (typeKey === 'state') base.push(
     ['OAKS supplier ID', '⚠ PROVIDE — register at supplier.ohio.gov']);
   return base;
@@ -127,7 +115,7 @@ function coverEmail(typeKey, buyerName) {
   const body =
 `Hello,
 
-Attached is our carrier onboarding packet for ${who}. Supply Now Inc. (${SN_PROFILE.mc} / ${SN_PROFILE.dot}) is an asset-based refrigerated + dry carrier out of Cleveland, ready to run your ${typeKey==='hospital'?'medical cold-chain':typeKey==='federal'||typeKey==='state'?'contract':'recurring'} freight.
+Attached is our carrier onboarding packet for ${who}. Supply Now Inc. (${SN_PROFILE.mc} / ${SN_PROFILE.dot}) is an asset-based refrigerated + dry carrier out of Cleveland, ready to run your ${typeKey==='hospital'?'medical cold-chain':typeKey==='state'?'contract':'recurring'} freight.
 
 Included: company profile, MC/DOT, insurance (Motor Truck Cargo + Auto Liability — COI on request), equipment, and references. Point me to your setup form or portal and I'll complete it same day.
 

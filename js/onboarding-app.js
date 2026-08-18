@@ -2,7 +2,7 @@
  * FleetView — Vendor Onboarding UI
  * =========================================================================== */
 'use strict';
-const OB = { type:'broker', buyer:'' };
+const OB = { type:'carrier', buyer:'' };
 const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 
 function render(){
@@ -40,7 +40,7 @@ function render(){
 
         ${gaps.length?`<div class="ob-gaps internal-only"><b>⚠ To complete (you provide):</b>
           <ul>${gaps.map(g=>`<li>${g[0]} — <span class="muted">${DOC_LABEL[g[1]]}</span></li>`).join('')}</ul>
-          <div class="muted" style="font-size:11.5px">I won't fabricate your EIN / UEI / bank — drop them into the profile once and every packet fills automatically.</div></div>`:''}
+          <div class="muted" style="font-size:11.5px">These attach separately at setup (the W-9 with your EIN, registrations) — only for a buyer who's already setting you up. Never printed on the shared packet.</div></div>`:''}
 
         <div class="sec-title">Cover email</div>
         <div class="ob-cover">
@@ -61,26 +61,11 @@ let toastT; function toast(m,k=''){ const el=$('#toast'); el.textContent=m; el.c
 
 function renderMyInfo(){
   const p = privateProfile();
-  const f = (id,label,val,ph='')=>`<div class="mi-f"><label>${label}</label><input id="${id}" class="c-in" value="${val||''}" placeholder="${ph}"></div>`;
   $('#ob-myinfo').innerHTML = `
-    ${f('mi-ein','EIN (Tax ID)',p.ein,'XX-XXXXXXX')}
-    <div class="mi-sub">Banking (ACH)</div>
-    ${f('mi-bank','Bank name',p.bankName)}
-    ${f('mi-routing','Routing (ABA)',p.routing)}
-    ${f('mi-acct','Account #',p.account)}
-    ${f('mi-type','Account type',p.acctType,'Business Checking')}
-    <div class="mi-sub">Federal / factoring</div>
-    ${f('mi-uei','SAM UEI',p.uei)}
-    ${f('mi-cage','CAGE code',p.cage)}
-    ${f('mi-fact','Factoring co. (blank = direct pay)',p.factoring)}
+    <div class="mi-f"><label>EIN (Tax ID) — for filling W-9s</label><input id="mi-ein" class="c-in" value="${p.ein||''}" placeholder="XX-XXXXXXX"></div>
     <button class="btn primary" id="mi-save" style="width:100%;justify-content:center;margin-top:6px">Save (this device)</button>
-    <div class="muted" style="font-size:10.5px;margin-top:6px">Stored only in this browser — never uploaded or committed to the public site.</div>`;
-  $('#mi-save').onclick=()=>{
-    savePrivate({ ein:$('#mi-ein').value.trim(), bankName:$('#mi-bank').value.trim(), routing:$('#mi-routing').value.trim(),
-      account:$('#mi-acct').value.trim(), acctType:$('#mi-type').value.trim(), uei:$('#mi-uei').value.trim(),
-      cage:$('#mi-cage').value.trim(), factoring:$('#mi-fact').value.trim() });
-    render(); toast('Saved to this device — packets updated','good');
-  };
+    <div class="muted" style="font-size:10.5px;margin-top:6px">Kept in this browser only, to fill out W-9 / setup forms — never printed on a shared packet, never uploaded or committed.</div>`;
+  $('#mi-save').onclick=()=>{ savePrivate({ ein:$('#mi-ein').value.trim() }); toast('Saved to this device','good'); };
 }
 
 function boot(){
