@@ -18,7 +18,7 @@ const SN_PROFILE = {
   phone:'216-548-7070',
   dispatchEmail:'dispatch@supplynow.org',
   apEmail:'mike@supplynow.org',
-  contactName:'Mike Cook',
+  contactName:'Aaron George',
   contactTitle:'Owner',
   equipment:'Refrigerated (reefer) + dry box trucks (16–26′), cargo/sprinter vans',
   serviceArea:'NE Ohio + Great Lakes (OH, PA, MI, IN, NY)',
@@ -119,7 +119,7 @@ Attached is our carrier onboarding packet for ${who}. Supply Now Inc. (${SN_PROF
 
 Included: company profile, MC/DOT, insurance (Motor Truck Cargo + Auto Liability — COI on request), equipment, and references. Point me to your setup form or portal and I'll complete it same day.
 
-Mike Cook
+Aaron George
 SupplyNow — Asset-Based Reefer & Dry Carrier
 ${SN_PROFILE.phone} · ${SN_PROFILE.dispatchEmail}
 ${SN_PROFILE.mc} · ${SN_PROFILE.dot}`;
