@@ -33,9 +33,17 @@ const SN_PROFILE = {
     'Pizza Bagel Lady (Terry Thomsen) — recurring cold-chain',
     'Summit Academy SNAP — 4-campus daily delivery',
   ],
-  // GAPS — Mike provides; never fabricate:
-  ein:'', uei:'', cage:'', bank:'', factoring:'',
+  // GAPS — filled from the PRIVATE (device-only) profile below; never hardcoded here.
+  ein:'', uei:'', cage:'', factoring:'',
 };
+
+/* Private, device-only fields (EIN, bank, UEI, CAGE, factoring) live in
+ * localStorage — NEVER committed to the public repo. Entered once in the UI. */
+const PRIV_KEY = 'fleetview_sn_private';
+function privateProfile(){ try { return JSON.parse(localStorage.getItem(PRIV_KEY)||'{}'); } catch { return {}; } }
+function savePrivate(o){ localStorage.setItem(PRIV_KEY, JSON.stringify(Object.assign(privateProfile(), o))); }
+function profile(){ return Object.assign({}, SN_PROFILE, privateProfile()); }
+function bankLine(p){ return p.bankName ? `${p.bankName} · Routing ${p.routing||'—'} · Acct ${p.account||'—'} (${p.acctType||'Business Checking'})` : ''; }
 
 /* Buyer types: what each requires, which map to SN fields, and the gaps */
 const BUYER_TYPES = {
@@ -79,7 +87,8 @@ const BUYER_TYPES = {
 
 /* Completed packet field rows (label → value) drawn from the profile */
 function packetRows(typeKey) {
-  const p = SN_PROFILE;
+  const p = profile();
+  const bank = bankLine(p);
   const base = [
     ['Legal business name', p.legalName],
     ['DBA', p.dba],
@@ -97,15 +106,16 @@ function packetRows(typeKey) {
     ['NAICS codes', p.naics],
     ['Insurance — cargo', `${p.insCargo} (${p.insCarrier})`],
     ['Insurance — auto', p.insAuto],
-    ['EIN (Tax ID)', p.ein || '⚠ PROVIDE — from your W-9'],
+    ['EIN (Tax ID)', p.ein || '⚠ PROVIDE — enter in My Info'],
   ];
   if (typeKey === 'federal') base.push(
     ['SAM UEI', p.uei || '⚠ PROVIDE — register at SAM.gov'],
     ['CAGE code', p.cage || '⚠ PROVIDE — assigned during SAM reg'],
     ['Business size', 'Small Business'],
-    ['ACH / banking', p.bank || '⚠ PROVIDE — enter in SAM']);
+    ['ACH / banking', bank || '⚠ PROVIDE — enter in My Info']);
   if (typeKey === 'broker') base.push(
-    ['Factoring / remittance', p.factoring || '⚠ PROVIDE — direct-pay or factor + NOA']);
+    ['Factoring / remittance', p.factoring || (bank ? 'Direct pay — ' + bank : '⚠ PROVIDE — direct-pay or factor + NOA')]);
+  if ((typeKey === 'hospital' || typeKey === 'shipper') && bank) base.push(['ACH / remittance', bank]);
   if (typeKey === 'state') base.push(
     ['OAKS supplier ID', '⚠ PROVIDE — register at supplier.ohio.gov']);
   return base;

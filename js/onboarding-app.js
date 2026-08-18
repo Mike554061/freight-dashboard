@@ -59,7 +59,32 @@ function render(){
 
 let toastT; function toast(m,k=''){ const el=$('#toast'); el.textContent=m; el.className='toast show '+k; clearTimeout(toastT); toastT=setTimeout(()=>el.className='toast '+k,2200); }
 
+function renderMyInfo(){
+  const p = privateProfile();
+  const f = (id,label,val,ph='')=>`<div class="mi-f"><label>${label}</label><input id="${id}" class="c-in" value="${val||''}" placeholder="${ph}"></div>`;
+  $('#ob-myinfo').innerHTML = `
+    ${f('mi-ein','EIN (Tax ID)',p.ein,'XX-XXXXXXX')}
+    <div class="mi-sub">Banking (ACH)</div>
+    ${f('mi-bank','Bank name',p.bankName)}
+    ${f('mi-routing','Routing (ABA)',p.routing)}
+    ${f('mi-acct','Account #',p.account)}
+    ${f('mi-type','Account type',p.acctType,'Business Checking')}
+    <div class="mi-sub">Federal / factoring</div>
+    ${f('mi-uei','SAM UEI',p.uei)}
+    ${f('mi-cage','CAGE code',p.cage)}
+    ${f('mi-fact','Factoring co. (blank = direct pay)',p.factoring)}
+    <button class="btn primary" id="mi-save" style="width:100%;justify-content:center;margin-top:6px">Save (this device)</button>
+    <div class="muted" style="font-size:10.5px;margin-top:6px">Stored only in this browser — never uploaded or committed to the public site.</div>`;
+  $('#mi-save').onclick=()=>{
+    savePrivate({ ein:$('#mi-ein').value.trim(), bankName:$('#mi-bank').value.trim(), routing:$('#mi-routing').value.trim(),
+      account:$('#mi-acct').value.trim(), acctType:$('#mi-type').value.trim(), uei:$('#mi-uei').value.trim(),
+      cage:$('#mi-cage').value.trim(), factoring:$('#mi-fact').value.trim() });
+    render(); toast('Saved to this device — packets updated','good');
+  };
+}
+
 function boot(){
+  renderMyInfo();
   $('#ob-types').innerHTML = Object.entries(BUYER_TYPES).map(([k,t])=>
     `<button class="ob-type ${k===OB.type?'on':''}" data-k="${k}">${t.label}</button>`).join('');
   $$('#ob-types .ob-type').forEach(b=>b.onclick=()=>{ OB.type=b.dataset.k; $$('#ob-types .ob-type').forEach(x=>x.classList.toggle('on',x===b)); render(); });

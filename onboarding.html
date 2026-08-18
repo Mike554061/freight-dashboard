@@ -10,6 +10,8 @@
   .nav-links{display:flex;gap:6px;}
   .c-in{width:100%;padding:7px 9px;border-radius:7px;background:var(--bg);color:var(--txt);border:1px solid var(--line-2);font-size:13px;}
   .c-in:focus{outline:none;border-color:var(--brand);}
+  .mi-f{margin-bottom:7px;} .mi-f label{display:block;font-size:11px;color:var(--txt-2);margin-bottom:3px;font-weight:600;}
+  .mi-sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--txt-3);margin:10px 0 5px;border-top:1px solid var(--line);padding-top:8px;}
   .mono-box{font-family:var(--mono);font-size:12.5px;background:var(--bg);border:1px solid var(--line-2);border-radius:7px;padding:8px 10px;color:var(--txt-2);}
   .lbl-min{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--txt-3);margin-bottom:4px;}
   .sec-head{font-size:16px;font-weight:700;}
@@ -58,6 +60,10 @@
       <div class="fgroup">
         <h3>Buyer type</h3>
         <div id="ob-types" style="flex-direction:column"></div>
+      </div>
+      <div class="fgroup" style="margin-top:12px">
+        <h3>🔒 My Info <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">· this device only</span></h3>
+        <div id="ob-myinfo"></div>
       </div>
       <div class="fgroup" style="margin-top:8px">
         <div class="muted" style="font-size:11px">Pick a buyer → get a completed packet, required-docs checklist, and cover email. Your COI + one-pager attach automatically. Gaps (EIN/UEI/bank) are flagged — add them to the profile once and every packet fills.</div>
