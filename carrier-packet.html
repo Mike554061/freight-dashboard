@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SupplyNow — Carrier Packet</title>
+<style>
+  :root{ --brand:#00b4a6; --brand-2:#0d7d74; --ink:#1a1f28; --muted:#5b6672; --line:#e2e6ea; --accent:#4c8dff; }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#eceff2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);}
+  .toolbar{max-width:860px;margin:16px auto 0;display:flex;gap:8px;padding:0 12px;align-items:center;}
+  .toolbar button{padding:9px 16px;border-radius:8px;border:1px solid var(--brand);background:var(--brand);color:#fff;font-weight:700;cursor:pointer;font-size:14px;}
+  .toolbar .muted{margin-left:auto;color:var(--muted);font-size:12.5px;}
+  .page{max-width:860px;margin:12px auto 40px;background:#fff;padding:44px 48px;box-shadow:0 6px 24px rgba(0,0,0,.12);}
+  header.sheet{display:flex;align-items:flex-start;border-bottom:3px solid var(--brand);padding-bottom:16px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .mark{width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--accent));display:grid;place-items:center;color:#fff;font-size:24px;font-weight:800;}
+  .brand h1{margin:0;font-size:27px;letter-spacing:.3px;}
+  .brand .tag{color:var(--brand-2);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1.6px;}
+  .reg{margin-left:auto;text-align:right;font-size:13px;color:var(--muted);line-height:1.6;}
+  .reg b{color:var(--ink);}
+  .lead{font-size:14px;line-height:1.65;color:#333;margin:18px 0 6px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:16px;}
+  h2.s{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--brand-2);border-bottom:1px solid var(--line);padding-bottom:5px;margin:16px 0 9px;}
+  .kv{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line);}
+  .kv span{color:var(--muted);} .kv b{color:var(--ink);text-align:right;}
+  ul.spec{list-style:none;padding:0;margin:0;font-size:13.5px;line-height:1.5;}
+  ul.spec li{padding:4px 0;display:flex;gap:8px;} ul.spec li::before{content:"▸";color:var(--brand);font-weight:800;}
+  .lanes{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px;}
+  .lane{background:#eef6f5;border:1px solid #cfe6e3;color:var(--brand-2);font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:20px;}
+  .refs li{margin:3px 0;}
+  .docs a{display:inline-block;color:var(--brand-2);font-weight:600;font-size:13px;margin-right:16px;}
+  footer.sheet{margin-top:24px;border-top:2px solid var(--brand);padding-top:14px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);}
+  footer.sheet b{color:var(--ink);}
+  @media print{ body{background:#fff;} .toolbar{display:none;} .page{box-shadow:none;margin:0;max-width:100%;padding:22px 26px;} @page{margin:0.5in;} }
+  @media(max-width:720px){ .grid{grid-template-columns:1fr;} .page{padding:26px 22px;} }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button onclick="window.print()">Print / Save as PDF</button>
+  <span class="muted">SupplyNow — Carrier Packet</span>
+</div>
+
+<div class="page">
+  <header class="sheet">
+    <div class="brand">
+      <div class="mark">▣</div>
+      <div><h1>SupplyNow</h1><div class="tag">Carrier Packet · Asset-Based Reefer &amp; Dry</div></div>
+    </div>
+    <div class="reg">
+      <b id="legal">Supply Now Inc.</b><br>
+      <b>MC</b> <span id="mc"></span> &nbsp; <b>DOT</b> <span id="dot"></span><br>
+      <span id="physical"></span>
+    </div>
+  </header>
+
+  <p class="lead">
+    Supply Now Inc. is a Cleveland-based, <b>asset-based refrigerated and dry carrier</b> serving
+    Northeast Ohio and the Great Lakes. Every load ships with <b>live GPS tracking and live temperature
+    monitoring</b>, digital proof-of-delivery, and dedicated equipment — a driver your team knows,
+    with no broker daisy-chain.
+  </p>
+
+  <div class="grid">
+    <div>
+      <h2 class="s">Company</h2>
+      <div class="kv"><span>Legal name</span><b id="legal2"></b></div>
+      <div class="kv"><span>DBA</span><b id="dba"></b></div>
+      <div class="kv"><span>Entity</span><b id="entity"></b></div>
+      <div class="kv"><span>Business Owner</span><b id="owner"></b></div>
+      <div class="kv"><span>MC / DOT</span><b><span id="mc2"></span> / <span id="dot2"></span></b></div>
+
+      <h2 class="s">Contact — Dispatch</h2>
+      <div class="kv"><span>Phone</span><b id="phone"></b></div>
+      <div class="kv"><span>Email</span><b id="email"></b></div>
+      <div class="kv"><span>Address</span><b id="physical2"></b></div>
+
+      <h2 class="s">Equipment</h2>
+      <ul class="spec">
+        <li>Refrigerated (reefer) trucks — live temp control &amp; logging</li>
+        <li>Dry box trucks, 16′–26′ — lift gate, pallet jack, load bars</li>
+        <li>Cargo / sprinter vans — expedited &amp; small-drop</li>
+        <li>Full &amp; partial · frozen, refrigerated &amp; ambient · no-touch / drop-trailer capable</li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="s">Credentials &amp; Insurance</h2>
+      <div class="kv"><span>Operating Authority</span><b>MC <span id="mc3"></span> · Active</b></div>
+      <div class="kv"><span>USDOT</span><b id="dot3"></b></div>
+      <div class="kv"><span>Cargo Insurance</span><b id="cargo"></b></div>
+      <div class="kv"><span>Auto Liability</span><b>On file — COI on request</b></div>
+      <div class="kv"><span>Freight types</span><b>Reefer · Frozen · Dry</b></div>
+      <div class="kv"><span>Tracking</span><b>Live GPS + Temperature</b></div>
+
+      <h2 class="s">Service Area</h2>
+      <div class="lanes">
+        <span class="lane">Ohio</span><span class="lane">Pennsylvania</span><span class="lane">Michigan</span>
+        <span class="lane">Indiana</span><span class="lane">New York</span><span class="lane">Great Lakes</span>
+      </div>
+
+      <h2 class="s">References</h2>
+      <ul class="spec refs" id="refs"></ul>
+
+      <h2 class="s">Documents</h2>
+      <div class="docs">
+        <a id="coi" target="_blank" rel="noopener">Certificate of Insurance ↗</a>
+        <a id="onepager" target="_blank" rel="noopener">Capabilities one-pager ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="sheet">
+    <div><b>Dispatch:</b> <span id="phoneF"></span> &nbsp;·&nbsp; <span id="emailF"></span></div>
+    <div><b>Supply Now Inc.</b> · MC <span id="mcF"></span> / DOT <span id="dotF"></span></div>
+  </footer>
+</div>
+
+<script src="js/onboarding-data.js"></script>
+<script>
+  var p = SN_PROFILE;
+  var mc = p.mc.replace(/^MC\s*/,''), dot = p.dot.replace(/^USDOT\s*/,'');
+  var set = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
+  set('legal',p.legalName); set('legal2',p.legalName); set('dba',p.dba); set('entity',p.entity);
+  set('owner',p.ownerName); set('mc',mc); set('mc2',mc); set('mc3',mc); set('mcF',mc);
+  set('dot',dot); set('dot2',dot); set('dot3',dot); set('dotF',dot);
+  set('physical',p.physical); set('physical2',p.physical);
+  set('phone',p.phone); set('phoneF',p.phone); set('email',p.dispatchEmail); set('emailF',p.dispatchEmail);
+  set('cargo',p.insCargo);
+  document.getElementById('coi').href = p.coiDoc;
+  document.getElementById('onepager').href = p.onePager;
+  document.getElementById('refs').innerHTML = p.references.map(function(r){ return '<li>'+r+'</li>'; }).join('');
+</script>
+</body>
+</html>
