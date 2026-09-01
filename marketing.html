@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FleetView — Marketing</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/opps.css">
+<link rel="stylesheet" href="css/command.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><span class="mark">◎</span>
+      <div>FleetView <small>Marketing · SupplyNow</small></div></div>
+    <div class="spacer"></div>
+    <nav class="nav-tabs">
+      <a class="btn ghost" href="dashboard.html">Command</a>
+      <a class="btn ghost" href="opportunities.html">Opportunities</a>
+      <a class="btn ghost" href="bidvault.html">Bid Vault</a>
+      <a class="btn ghost" href="marketing.html" style="background:var(--brand);border-color:var(--brand);color:var(--brand-ink)">Marketing</a>
+      <a class="btn ghost" href="bidroom.html">Bid Room</a>
+      <a class="btn ghost" href="prospects.html">Prospects</a>
+      <a class="btn ghost" href="brokers.html">Brokers</a>
+      <a class="btn ghost" href="onboarding.html">Onboarding</a>
+    </nav>
+    <span id="vm-host"></span>
+  </header>
+
+  <div class="page">
+    <div class="page-grid">
+
+      <div class="kpis" id="mkpis"></div>
+
+      <div class="cols">
+        <div style="display:grid;gap:16px">
+
+          <div class="card">
+            <h2>Campaigns <span class="hint">Attribution is computed from tagged pursuits</span></h2>
+            <div class="cbody">
+              <div class="inline-form">
+                <div class="field" style="margin:0"><label>Campaign name</label><input id="c-name" placeholder="VA NCO 10 courier watch"></div>
+                <div class="field" style="margin:0"><label>Channel</label>
+                  <select id="c-channel"><option>Federal</option><option>Direct</option><option>Email</option><option>Referral</option><option>Event</option></select></div>
+                <div class="field" style="margin:0"><label>Play</label><select id="c-play"></select></div>
+                <button class="btn primary" id="c-add">+ Add campaign</button>
+              </div>
+              <div id="campaigns" style="margin-top:14px"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Plays <span class="hint">Repeatable motions, each tied to a pipeline stage</span></h2>
+            <div class="cbody" id="plays"></div>
+          </div>
+
+        </div>
+
+        <div style="display:grid;gap:16px">
+
+          <div class="card">
+            <h2>Collateral <span class="hint">What we can send today</span></h2>
+            <div class="cbody"><div class="mgrid" id="collateral"></div></div>
+          </div>
+
+          <div class="card">
+            <h2>Capability statement <span class="hint">Generated from registration facts</span></h2>
+            <div class="cbody">
+              <div class="codebox" id="capstmt"></div>
+              <div style="display:flex;gap:8px;margin-top:11px">
+                <button class="btn" id="cap-copy">Copy text</button>
+                <button class="btn" id="cap-dl">Download .txt</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Untagged pursuits <span class="hint">Pipeline with no campaign against it</span></h2>
+            <div class="cbody" id="untagged"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/viewmode.js"></script>
+<script src="js/pipeline-core.js"></script>
+<script src="js/opps-data.js"></script>
+<script src="js/scout-data.js"></script>
+<script src="js/marketing-data.js"></script>
+<script src="js/marketing-app.js"></script>
+</body>
+</html>

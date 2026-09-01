@@ -204,3 +204,10 @@ body.broker-facing .vm-btn { border-color:var(--good); color:var(--good); }
 .leaflet-container { background:#0a0e14; }
 .load-pop b { color:var(--brand); }
 .load-pop .r { font-family:var(--mono); }
+
+/* ---------- Header nav: 7 tabs must not wrap the 58px header ---------- */
+header .nav-tabs,
+header > div[style*="display:flex"] { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; min-width:0; }
+header .nav-tabs::-webkit-scrollbar,
+header > div[style*="display:flex"]::-webkit-scrollbar { display:none; }
+header a.btn { white-space:nowrap; padding:7px 11px; }

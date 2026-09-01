@@ -39,7 +39,7 @@ const NOTICE_TYPE = {
 /* ---------- Scoring: "is it worth it?" ---------- */
 function daysUntil(dateStr) {
   if (!dateStr) return null;
-  const d = new Date(dateStr), now = new Date('2026-08-02');
+  const d = new Date(dateStr), now = new Date(); now.setHours(0,0,0,0);
   return Math.round((d - now) / 86400000);
 }
 

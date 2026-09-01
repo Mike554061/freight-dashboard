@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FleetView — Bid Vault</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/opps.css">
+<link rel="stylesheet" href="css/command.css">
+<style>
+  .c-in{width:100%;padding:7px 9px;border-radius:7px;background:var(--bg);color:var(--txt);border:1px solid var(--line-2);font-size:13px;}
+  .c-in:focus{outline:none;border-color:var(--brand);}
+  .paste{width:100%;min-height:190px;background:var(--bg);color:var(--txt);border:1px solid var(--line-2);
+         border-radius:8px;padding:11px;font-family:var(--mono);font-size:12.5px;line-height:1.6;resize:vertical;}
+  .qa{border:1px solid var(--line);border-left-width:3px;border-radius:9px;background:var(--bg);
+      padding:13px 14px;margin-bottom:11px;}
+  .qa.strong{border-left-color:var(--good);} .qa.verify{border-left-color:var(--warn);}
+  .qa.watch{border-left-color:var(--accent);} .qa.intel{border-left-color:var(--bad);}
+  .qa .qtop{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap;}
+  .qa .qnum{font-family:var(--mono);font-size:11px;color:var(--txt-3);}
+  .qa .qtext{font-weight:700;font-size:13.5px;line-height:1.4;margin-bottom:9px;}
+  .qa .ans{width:100%;min-height:96px;background:var(--bg-2);color:var(--txt);border:1px solid var(--line-2);
+           border-radius:7px;padding:10px;font-family:inherit;font-size:12.5px;line-height:1.6;resize:vertical;}
+  .qa .gaps{margin-top:8px;background:rgba(242,165,65,.08);border:1px solid rgba(242,165,65,.28);
+            border-radius:7px;padding:9px 11px;font-size:12px;color:var(--warn);line-height:1.5;}
+  .qa .gaps b{display:block;margin-bottom:3px;}
+  .qa .gaps ul{margin:0;padding-left:16px;} .qa .gaps li{margin:2px 0;}
+  .qa .qact{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;align-items:center;}
+  .qa .alt{font-size:11.5px;color:var(--txt-3);}
+  .qa select.altsel{padding:5px 8px;border-radius:6px;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);font-size:12px;}
+  .libitem{border:1px solid var(--line);border-radius:8px;padding:11px 12px;margin-bottom:9px;background:var(--bg);}
+  .libitem .lt{font-weight:700;font-size:13px;}
+  .libitem .lc{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--txt-3);margin:3px 0 6px;}
+  .libitem .lk{font-size:11.5px;color:var(--txt-3);line-height:1.5;}
+  .vault-f{margin-bottom:8px;} .vault-f label{display:block;font-size:11px;color:var(--txt-2);margin-bottom:3px;font-weight:600;}
+  .warnbox{background:rgba(248,81,73,.09);border:1px solid rgba(248,81,73,.3);border-radius:8px;
+           padding:10px 12px;font-size:12px;color:var(--txt-2);line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><span class="mark">▤</span><div>FleetView <small>Bid Vault · SupplyNow</small></div></div>
+    <div class="spacer"></div>
+    <nav class="nav-tabs">
+      <a class="btn ghost" href="dashboard.html">Command</a>
+      <a class="btn ghost" href="opportunities.html">Opportunities</a>
+      <a class="btn ghost" href="bidvault.html" style="background:var(--brand);border-color:var(--brand);color:var(--brand-ink)">Bid Vault</a>
+      <a class="btn ghost" href="marketing.html">Marketing</a>
+      <a class="btn ghost" href="bidroom.html">Bid Room</a>
+      <a class="btn ghost" href="prospects.html">Prospects</a>
+      <a class="btn ghost" href="brokers.html">Brokers</a>
+      <a class="btn ghost" href="onboarding.html">Onboarding</a>
+    </nav>
+    <span id="vm-host"></span>
+  </header>
+
+  <div class="page">
+    <div class="page-grid">
+      <div class="kpis" id="vkpis"></div>
+
+      <div class="cols">
+        <div style="display:grid;gap:16px">
+
+          <div class="card">
+            <h2>Questionnaire <span class="hint">Paste the RFP questions or upload a .txt / .csv</span></h2>
+            <div class="cbody">
+              <div class="inline-form" style="margin-bottom:10px">
+                <div class="vault-f" style="margin:0"><label>Bid / solicitation name</label>
+                  <input id="v-bid" class="c-in" placeholder="e.g. DLA East Coast Export Mission"></div>
+                <div class="vault-f" style="margin:0"><label>Upload questions</label>
+                  <input id="v-file" class="c-in" type="file" accept=".txt,.csv,.md"></div>
+              </div>
+              <textarea id="v-paste" class="paste" placeholder="Paste the questionnaire here — numbered questions, bulleted prompts, or form field labels ending in a colon.
+
+1. Describe your company's experience performing similar refrigerated delivery contracts.
+2. What is your safety programme and current DOT compliance status?
+Legal Business Name:
+MC Number:"></textarea>
+              <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+                <button class="btn primary" id="v-run">Draft answers</button>
+                <button class="btn" id="v-clear">Clear</button>
+                <label class="chkrow internal-only" style="margin:0"><input type="checkbox" id="v-reveal">
+                  <span style="font-size:12.5px">Insert sensitive vault fields (EIN / UEI / CAGE)</span></label>
+              </div>
+              <div class="muted" style="margin-top:9px" id="v-note"></div>
+              <div class="muted" style="margin-top:7px;font-size:11.5px;line-height:1.6">
+                <b style="color:var(--txt-2)">Got a PDF or Word solicitation?</b>
+                The browser can't read those, so extract locally first — it also pulls the
+                field names out of a fillable PDF, which are the cleanest questions there are:
+                <div class="codebox" style="margin-top:6px;padding:9px 11px">python3 tools/extract_questions.py rfp.pdf --clipboard</div>
+                Then paste. Add <code>--questions</code> to preview the split before you do.
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="results-card" style="display:none">
+            <h2>Drafted answers <span class="hint" id="v-summary"></span></h2>
+            <div class="cbody">
+              <div id="v-results"></div>
+              <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+                <button class="btn primary" id="v-copyall">Copy all</button>
+                <button class="btn" id="v-dltxt">Download .txt</button>
+                <button class="btn" id="v-dlcsv">Download .csv</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="display:grid;gap:16px">
+
+          <div class="card">
+            <h2>Information vault <span class="hint">What the drafts are built from</span></h2>
+            <div class="cbody">
+              <div id="v-profile"></div>
+              <div class="sec-title">Private — this device only</div>
+              <div id="v-private"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Answer library <span class="hint" id="v-libcount"></span></h2>
+            <div class="cbody">
+              <div style="display:flex;gap:8px;margin-bottom:11px">
+                <button class="btn" id="v-addans">+ Add answer</button>
+              </div>
+              <div id="v-library"></div>
+            </div>
+          </div>
+
+          <div class="card internal-only">
+            <h2>Vault activity <span class="hint">Bids drafted from the library</span></h2>
+            <div class="cbody"><div id="v-log"></div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/viewmode.js"></script>
+<script src="js/pipeline-core.js"></script>
+<script src="js/onboarding-data.js"></script>
+<script src="js/bidvault-data.js"></script>
+<script src="js/bidvault-app.js"></script>
+</body>
+</html>

@@ -9,21 +9,23 @@ const O = {
   sortKey: 'worthScore', sortDir: 'desc',
   live: false,
 };
-const STATUSES = ['New','Scoping','Pursuing','Bid','Won','Passed'];
-const STATUS_COLOR = { New:'#6b7684', Scoping:'#4c8dff', Pursuing:'#f2a541', Bid:'#c471ed', Won:'#3fb950', Passed:'#f85149' };
+/* STATUSES and STATUS_COLOR are declared by pipeline-core.js, which every page
+ * loads first — this board and the BD Command dashboard share one stage
+ * vocabulary so they can never drift apart. */
 
 const $  = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const money = n => n ? '$' + n.toLocaleString() : '—';
 
-/* ---- pipeline record (localStorage: {id: {status, notes}}) ---- */
-const PIPE_KEY = 'fleetview_opps_pipeline';
-function loadPipe() { try { return JSON.parse(localStorage.getItem(PIPE_KEY)||'{}'); } catch { return {}; } }
-function savePipe(p) { localStorage.setItem(PIPE_KEY, JSON.stringify(p)); }
-function pipeOf(id) { return loadPipe()[id] || { status:'New', notes:'' }; }
+/* ---- pipeline record — delegated to pipeline-core.js ----
+ * Writes go through Pipeline.set so stage moves are stamped into history and
+ * the activity log automatically. Nothing changes stage without a trace. */
+function pipeOf(id) { return Pipeline.get(id); }
 function setPipe(id, patch) {
-  const p = loadPipe(); p[id] = Object.assign(pipeOf(id), patch); savePipe(p);
-  O.all.forEach(o => { if (o.id===id) Object.assign(o, { status:p[id].status, notes:p[id].notes }); });
+  const o = O.all.find(x => x.id === id);
+  Pipeline.set(id, patch, { title: o ? o.title : id });
+  const rec = Pipeline.get(id);
+  O.all.forEach(x => { if (x.id === id) Object.assign(x, rec); });
 }
 
 function dueLabel(dateStr) {
@@ -60,9 +62,16 @@ function clearFilters() {
 async function run() {
   const btn = $('#btn-refresh'); btn.disabled=true; btn.textContent='Loading…';
   try {
-    const { opps, live, note } = await fetchOpportunities(readFilters());
-    const pipe = loadPipe();
-    O.all = opps.map(o => Object.assign(o, pipe[o.id] || { status:'New', notes:'' }));
+    const filters = readFilters();
+    const { opps, live, note } = await fetchOpportunities(filters);
+    // Fold in whatever the Bid Scout surfaced on its last run so scouted work
+    // lands in the same board as everything else, not in a separate inbox.
+    const byId = new Map();
+    opps.forEach(o => byId.set(o.id, o));
+    if (typeof scoutFindingsAsOpps === 'function') {
+      applyOppFilters(scoutFindingsAsOpps(), filters).forEach(o => byId.set(o.id, o));
+    }
+    O.all = Pipeline.decorate([...byId.values()]);
     O.live = live; O.note = note;
     sortNow(); renderMode(); render();
     if (note) toast(note, live ? 'good' : '');

@@ -251,7 +251,10 @@ function clPay_(t) {  // pull a $ figure or /hr out of the title if present
  * -------------------------------------------------------------------------- */
 function fetchSamGov(f) {
   var key = PropertiesService.getScriptProperties().getProperty('SAM_API_KEY');
-  if (!key) throw new Error('SAM_API_KEY not set');
+  // No key configured -> go straight to the keyless public search. The keyed
+  // API is nicer (structured NAICS, set-aside, award value) but the free
+  // non-federal key is capped at ~10 pulls/day, which a daily scout burns fast.
+  if (!key) return fetchSamPublic_(f);
 
   // SAM's free (non-federal) key allows ~10 requests/DAY. So: cache hard (6h,
   // CacheService max) and query 3-digit NAICS PREFIXES (<=3 calls, not 10).
@@ -307,7 +310,17 @@ function fetchSamGov(f) {
     });
   });
 
-  if (!out.length && limited) throw new Error('SAM rate limit reached (free key ~10/day) — cached results resume after reset');
+  // Rate limited or simply dry: fall back to the keyless endpoint rather than
+  // handing the dashboard an empty array it can't distinguish from "no matches".
+  if (!out.length) {
+    var pub = [];
+    try { pub = fetchSamPublic_(f); } catch (e) {}
+    if (pub.length) {
+      try { cache.put(ckey, JSON.stringify(pub.slice(0,150)), 21600); } catch (e) {}
+      return pub;
+    }
+    if (limited) throw new Error('SAM rate limit reached (free key ~10/day) and public search returned nothing');
+  }
   out = out.slice(0, 150);                              // keep under CacheService 100KB/key
   try { cache.put(ckey, JSON.stringify(out), 21600); } catch (e) {}  // 6h
   return out;
@@ -329,4 +342,89 @@ function doPost(e) {
 function json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/* ---------------- SAM.gov keyless public search (fallback) -----------------
+ * This is the endpoint sam.gov's own Contract Opportunities UI calls. No API
+ * key, no daily cap. It returns less structure than the keyed v2 API (NAICS and
+ * set-aside often come back null), so the queried NAICS is stamped onto each
+ * record and set-aside is left as 'None' rather than guessed at.
+ *
+ * Browsers can't call this directly (CORS) — that is why it lives here.
+ * -------------------------------------------------------------------------- */
+var SAM_PUBLIC = 'https://sam.gov/api/prod/sgs/v1/search/';
+var SAM_PUBLIC_NAICS = {
+  trucking:  ['484110','484121','484122','484220','484230'],
+  courier:   ['492110'],
+  warehouse: ['493120'],
+  // Medical cold-chain adjacency — blood/organ banks and lab logistics.
+  medical:   ['621991'],
+};
+
+function fetchSamPublic_(f) {
+  var cache = CacheService.getScriptCache();
+  var ckey = 'sampub_' + (f.naicsGroup || 'all') + '_' + (f.state || '') + '_' + (f.keyword || '');
+  var hit = cache.get(ckey);
+  if (hit) { try { return JSON.parse(hit); } catch (e) {} }
+
+  var codes;
+  if (f.naicsGroup && SAM_PUBLIC_NAICS[f.naicsGroup]) codes = SAM_PUBLIC_NAICS[f.naicsGroup];
+  else codes = SAM_PUBLIC_NAICS.trucking
+        .concat(SAM_PUBLIC_NAICS.courier, SAM_PUBLIC_NAICS.warehouse, SAM_PUBLIC_NAICS.medical);
+
+  var requests = codes.map(function (nc) {
+    var url = SAM_PUBLIC + '?index=opp&page=0&mode=search&sort=-modifiedDate'
+            + '&size=40&mfe=true&q=' + encodeURIComponent(f.keyword || '')
+            + '&qMode=ALL&is_active=true&naics=' + nc;
+    if (f.state) url += '&state=' + encodeURIComponent(f.state);
+    return {
+      url: url, muteHttpExceptions: true,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FleetView BidScout)', 'Accept': 'application/json' },
+    };
+  });
+
+  var responses = UrlFetchApp.fetchAll(requests);
+  var out = [], seen = {};
+  responses.forEach(function (res, i) {
+    if (res.getResponseCode() >= 400) return;
+    var data; try { data = JSON.parse(res.getContentText()); } catch (e) { return; }
+    var results = (data._embedded && data._embedded.results) || [];
+    results.forEach(function (r) {
+      var id = r._id || r.id;
+      if (!id || seen[id]) return; seen[id] = true;
+      var pop = r.placeOfPerformance || {};
+      var org = r.organizationHierarchy || [];
+      var desc = (r.descriptions && r.descriptions[0] && r.descriptions[0].content) || '';
+      desc = String(desc).replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&rsquo;|&amp;/g, ' ')
+                         .replace(/\s+/g, ' ').trim();
+      out.push({
+        id: 'sam_' + id,
+        source: 'samgov',
+        title: r.title || '',
+        agency: org.map(function (o) { return o.name; }).filter(Boolean).slice(-2).join(' / '),
+        solicitationNumber: (r.solicitationNumber || '').trim() || id,
+        naics: codes[i],                                  // stamped from the query
+        type: (r.type && (r.type.value || r.type.val)) || 'Notice',
+        postedDate: (r.publishDate || '').slice(0, 10),
+        dueDate: (r.responseDate || '').slice(0, 10),
+        pop: {
+          city: (pop.city && pop.city.name) || '',
+          state: (pop.state && (pop.state.code || pop.state.name)) || '',
+        },
+        setAside: r.typeOfSetAsideDescription || r.typeOfSetAside || 'None',
+        value: null,                                      // not exposed by this endpoint
+        url: 'https://sam.gov/opp/' + id + '/view',
+        contact: { name: '', email: '', phone: '' },
+        description: desc || (r.title || ''),
+      });
+    });
+  });
+
+  // Drop anything already closed — a passed deadline is not an opportunity.
+  var today = Utilities.formatDate(new Date(), 'GMT', 'yyyy-MM-dd');
+  out = out.filter(function (o) { return !o.dueDate || o.dueDate >= today; });
+  out = out.slice(0, 150);
+  try { cache.put(ckey, JSON.stringify(out), 10800); } catch (e) {}   // 3h
+  return out;
 }

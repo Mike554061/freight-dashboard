@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FleetView — BD Command</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/opps.css">
+<link rel="stylesheet" href="css/command.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><span class="mark">◎</span>
+      <div>FleetView <small>BD Command · SupplyNow</small></div></div>
+    <div class="spacer"></div>
+    <nav class="nav-tabs">
+      <a class="btn ghost" href="dashboard.html" style="background:var(--brand);border-color:var(--brand);color:var(--brand-ink)">Command</a>
+      <a class="btn ghost" href="opportunities.html">Opportunities</a>
+      <a class="btn ghost" href="bidvault.html">Bid Vault</a>
+      <a class="btn ghost" href="marketing.html">Marketing</a>
+      <a class="btn ghost" href="bidroom.html">Bid Room</a>
+      <a class="btn ghost" href="prospects.html">Prospects</a>
+      <a class="btn ghost" href="brokers.html">Brokers</a>
+      <a class="btn ghost" href="onboarding.html">Onboarding</a>
+    </nav>
+    <span id="vm-host"></span>
+    <span class="mode-badge mock" id="mode-badge">● Sample data</span>
+    <button class="btn primary" id="btn-refresh">↻ Rescan</button>
+  </header>
+
+  <div class="page">
+    <div class="page-grid">
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="cols">
+        <div style="display:grid;gap:16px">
+
+          <div class="card">
+            <h2>Pipeline by stage <span class="hint" id="funnel-hint"></span></h2>
+            <div class="cbody"><div class="funnel" id="funnel"></div></div>
+          </div>
+
+          <div class="card">
+            <h2>Needs attention <span class="hint">Ownership, deadlines, and drift</span></h2>
+            <div class="cbody" id="attention"></div>
+          </div>
+
+          <div class="card internal-only">
+            <h2>Activity log <span class="hint">Append-only — every stage move is stamped</span></h2>
+            <div class="cbody"><div class="act" id="activity"></div></div>
+          </div>
+
+        </div>
+
+        <div style="display:grid;gap:16px">
+
+          <div class="card">
+            <h2>🎯 Bid Scout <span class="hint" id="scout-hint"></span></h2>
+            <div class="cbody" id="scout"></div>
+          </div>
+
+          <div class="card">
+            <h2>Source health <span class="hint">What each feed actually returned</span></h2>
+            <div class="cbody"><div class="health" id="health"></div></div>
+          </div>
+
+          <div class="card">
+            <h2>Marketing attribution <span class="hint">Computed from tagged pursuits</span></h2>
+            <div class="cbody" id="mktg"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/viewmode.js"></script>
+<script src="js/pipeline-core.js"></script>
+<script src="js/opps-data.js"></script>
+<script src="js/scout-data.js"></script>
+<script src="js/marketing-data.js"></script>
+<script src="js/dashboard-app.js"></script>
+</body>
+</html>
