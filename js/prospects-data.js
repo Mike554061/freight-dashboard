@@ -11,7 +11,7 @@
  * authorized in claude.ai connector settings.
  * =========================================================================== */
 
-const P_HOME = { city:'Cleveland', region:['Bedford Heights','Bedford','Tallmadge','Akron','Solon','Twinsburg','Macedonia','Independence','Valley View','Lorain','Elyria','Mentor','Strongsville'] };
+const P_HOME = { city:'Cleveland', region:['Bedford Heights','Bedford','Tallmadge','Akron','Solon','Twinsburg','Macedonia','Independence','Valley View','Lorain','Elyria','Mentor','Strongsville','Willoughby Hills','Willoughby','Wickliffe','Eastlake'] };
 const PROSPECT_CONFIG = { useMock:true, proxyUrl:'' };
 
 const SN = { name:'Supply Now Inc.', mc:'MC 1660872', dot:'DOT 3976910', phone:'216-548-7070', email:'dispatch@supplynow.org', rep:'Mike Cook' };
@@ -70,6 +70,16 @@ const INTEL_OVERRIDES = {
   'Arlington Valley Farms': { ownFleet:'No', triggers:['Frozen manufacturer inside Nor-Am','Needs outbound frozen carriers'], likelyLanes:['Cleveland → national retail/foodservice (frozen)'] },
   'Sysco Cleveland': { approach:'Overflow + redistribution/shuttle lanes (they flex to carriers at peak)', likelyLanes:['Cleveland RDC → regional','Redistribution shuttles'] },
   'Northern Haserot': { likelyLanes:['Bedford Heights → NE Ohio restaurants','Inbound center-of-plate → their DC'] },
+  'Produce Packaging (PPI)': { ownFleet:'No — 100% third-party carriers',
+    approach:'Straight to Logistics Mgr Albert Pursel — fresh-cut short-notice reefer + repack outbound to retail/foodservice DCs. Warm path: sister company to The Sanson Company (also a target).',
+    triggers:['No trucks of their own — every load is a carrier','Fresh-cut = high-frequency, appointment-tight reefer','Sister-company intro to Sanson & Great Lakes Packers'],
+    painPoints:['Short-notice reefer capacity','On-time to retail DC delivery windows','Temp integrity on cut produce'],
+    likelyLanes:['Willoughby Hills → Cleveland Produce Terminal','Willoughby Hills → Midwest retail DCs','Willoughby Hills → NE Ohio foodservice'] },
+  'Oriental Better Foods': { ownFleet:'No — import brokerage / distribution',
+    approach:'Frozen distribution from their cold-storage point to Midwest foodservice/retail buyers, plus port/rail drayage on inbound containers.',
+    triggers:['Frozen IQF imports need reefer trucks on the outbound','No owned fleet','Growing import volume (~110 shipments)'],
+    painPoints:['Frozen temp integrity in transit','Drayage timing from port/rail ramp','Small-drop distribution economics'],
+    likelyLanes:['Cold storage → Midwest foodservice buyers','Port/rail ramp → Cleveland cold storage (drayage)','Cleveland → regional retail (frozen)'] },
 };
 
 /* ---------- Apollo-sourced live leads (Greater Cleveland medical + cold-chain) ---------- */
@@ -139,11 +149,21 @@ function buildProspects() {
     { company:'Sysco Cleveland', type:'distributor', category:'reefer', city:'Cleveland', state:'OH',
       about:'National broadline foodservice distributor; large fleet but uses carriers for overflow & dedicated.',
       signals:['Scale → overflow + dedicated','Redistribution lanes'], url:'https://www.sysco.com/Cleveland' },
+    { company:'Produce Packaging (PPI)', type:'manufacturer', category:'reefer', city:'Willoughby Hills', state:'OH',
+      about:'$40M fresh-cut produce processor & repacker (est. 1994), 250+ employees; sister company to The Sanson Company and Great Lakes Packers. Serves retail chains, foodservice distributors, food manufacturers and schools within ~400 mi.',
+      signals:['No owned fleet — 100% third-party freight','Fresh-cut = daily reefer, short-notice orders','Sister co. to Sanson (already a target)'],
+      url:'https://ppifresh.net/',
+      contact:{ name:'Albert Pursel', title:'Logistics Manager (inbound & outbound freight)', email:'', phone:'216-391-6129', linkedin:'' } },
+    { company:'Oriental Better Foods', type:'distributor', category:'reefer', city:'Cleveland', state:'OH',
+      about:'Importer/distributor of IQF frozen vegetables (diced onion, peppers, cauliflower, celery) from China & Korea; ~110 import shipments. Lean team — office at 1468 W 9th St (SPACES shared office); warehousing/cold storage via 3rd parties.',
+      signals:['Frozen IQF import → drayage in + frozen distribution out','Container-import driven, growing volume','No owned fleet — small team'],
+      url:'https://panjiva.com/Oriental-Better-Foods-Llc/230098556',
+      contact:{ name:'', title:'Owner / Import Operations', email:'', phone:'', linkedin:'' } },
   ];
   const seeded = R.map((p, i) => {
     const intel = Object.assign(deriveIntel(p), INTEL_OVERRIDES[p.company] || {});
     return Object.assign(p, { id:'pr_'+(70000+i), source:'research',
-      contact:{ name:'', title:'Logistics / Transportation Manager', email:'', phone:'', linkedin:'' }, intel },
+      contact:p.contact || { name:'', title:'Logistics / Transportation Manager', email:'', phone:'', linkedin:'' }, intel },
       scoreProspect(p));
   });
   const apollo = APOLLO_LEADS.map((p, i) => {
