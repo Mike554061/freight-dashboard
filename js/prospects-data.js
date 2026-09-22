@@ -12,7 +12,10 @@
  * =========================================================================== */
 
 const P_HOME = { city:'Cleveland', region:['Bedford Heights','Bedford','Tallmadge','Akron','Solon','Twinsburg','Macedonia','Independence','Valley View','Lorain','Elyria','Mentor','Strongsville','Willoughby Hills','Willoughby','Wickliffe','Eastlake'] };
-const PROSPECT_CONFIG = { useMock:true, proxyUrl:'' };
+/* paidEnrichment GATE: Apollo credit-spending reveals (direct dials / verified emails) are OFF by
+ * default. Never enrich/reveal or publish a paid personal contact unless Mike explicitly directs it.
+ * Research leads below carry NO paid data — company + public main line only. */
+const PROSPECT_CONFIG = { useMock:true, proxyUrl:'', paidEnrichment:false };
 
 const SN = { name:'Supply Now Inc.', mc:'MC 1660872', dot:'DOT 3976910', phone:'216-548-7070', email:'dispatch@supplynow.org', rep:'Mike Cook' };
 const SIG = `${SN.rep}\nSupplyNow — Asset-Based Reefer & Dry Carrier\n${SN.phone} · ${SN.email}\n${SN.mc} · ${SN.dot}`;
@@ -179,6 +182,41 @@ function buildProspects() {
       signals:['Solon HQ — around the corner from our NEO ops','NEO networking / referrals, not their Pittsburgh dock-to-dock','Peer reefer carrier — local overflow + relationship'],
       url:'https://www.drivegreatlakes.com/',
       contact:{ name:'Eric Vickers', title:'Dispatch Coordinator (carrier relations) — x727; also Jim Short, Sr Dir Logistics', email:'evickers@glclogistics.com', phone:'724-741-9600', linkedin:'' } },
+
+    /* ---- SMALL-PRODUCER LEAD LIST ----
+     * Band = between SNAP Gourmet (~$6.7M, ~40 emp) and Pizza Bagel Lady (micro). NE-Ohio food
+     * producers/manufacturers too small to run a fleet → outbound cold-chain need. Contacts left
+     * blank on purpose (paid enrichment is gated). Sizes are estimates — confirm before pricing. */
+    { company:'Ohio City Pasta', type:'manufacturer', category:'reefer', city:'Cleveland', state:'OH', segment:'small-producer',
+      about:'Fresh & frozen pasta and pierogi maker; retail, wholesale & foodservice. Small Cleveland producer.',
+      signals:['Fresh/frozen → reefer outbound','Retail + foodservice + wholesale drops','No fleet — carrier-dependent'], url:'https://www.ohiocitypasta.com/' },
+    { company:'Pierogies of Cleveland', type:'manufacturer', category:'reefer', city:'Richfield', state:'OH', segment:'small-producer',
+      about:'Handmade frozen pierogi, 36+ flavors; wholesale + DTC online. Small producer.',
+      signals:['Frozen outbound','Wholesale + ecommerce shipping','Small — no own trucks'], url:'https://www.poconlinestore.com/' },
+    { company:"Rudy's Strudel & Pierogi", type:'manufacturer', category:'reefer', city:'Parma', state:'OH', segment:'small-producer',
+      about:'Parma-based frozen pierogi & strudel; retail + wholesale. Small family producer.',
+      signals:['Frozen product','Local wholesale + shipping','Micro/small — carrier need'], url:'https://www.rudysstrudel.com/' },
+    { company:'Cleveland Kitchen', type:'manufacturer', category:'reefer', city:'Cleveland', state:'OH', segment:'small-producer',
+      about:'Refrigerated fermented foods (kraut, kimchi, dressings) sold in national retail; Ohio City. Top of the band.',
+      signals:['Refrigerated → strict cold-chain','Ships to national grocery DCs','Growing — outbound scaling'], url:'https://www.clevelandkitchen.com/' },
+    { company:'Cleveland Bagel Company', type:'manufacturer', category:'both', city:'Cleveland', state:'OH', segment:'small-producer',
+      about:'Wholesale bagels & dough to cafes, grocers & foodservice. Small Cleveland producer.',
+      signals:['Refrigerated dough + baked goods','Early-morning wholesale drops','No fleet'], url:'https://www.clevelandbagel.com/' },
+    { company:'Mackenzie Creamery', type:'manufacturer', category:'reefer', city:'Hiram', state:'OH', segment:'small-producer',
+      about:'Artisan goat-cheese creamery; retail & foodservice, ships regionally/nationally. Small producer.',
+      signals:['Refrigerated cheese → cold-chain','Regional + national retail','Small — carrier-dependent'], url:'https://www.mackenziecreamery.com/' },
+    { company:'Hartzler Family Dairy', type:'manufacturer', category:'reefer', city:'Wooster', state:'OH', segment:'small-producer',
+      about:'Glass-bottle dairy & creamery; grocery + DTC across NE Ohio. Small-mid producer (top of band).',
+      signals:['Refrigerated dairy','Grocery route + farm store','Own routes but overflow/backhaul'], url:'https://www.hartzlerdairy.com/' },
+    { company:'Ohio City Provisions', type:'manufacturer', category:'reefer', city:'Cleveland', state:'OH', segment:'small-producer',
+      about:'Whole-animal butcher & charcuterie; wholesale to restaurants + retail. Small Cleveland producer.',
+      signals:['Refrigerated meat → strict cold-chain','Restaurant wholesale drops','Micro/small — no fleet'], url:'https://www.ohiocityprovisions.com/' },
+    { company:"The Chef's Garden / Farmer Jones Farm", type:'manufacturer', category:'reefer', city:'Huron', state:'OH', segment:'small-producer',
+      about:'Specialty produce grower shipping refrigerated to top restaurants & DTC nationwide. Small-mid producer.',
+      signals:['Refrigerated specialty produce','Ships nationwide — outbound heavy','Cold-chain critical'], url:'https://www.chefs-garden.com/' },
+    { company:'Bertman Foods (Ballpark Mustard)', type:'manufacturer', category:'dry', city:'Cleveland', state:'OH', segment:'small-producer',
+      about:'Iconic Cleveland mustard/condiment maker; retail, stadium & foodservice. Small producer (dry/ambient).',
+      signals:['Shelf-stable → dry van','Retail DC + stadium/foodservice','Small — carrier-dependent'], url:'https://www.ballparkmustard.com/' },
   ];
   const seeded = R.map((p, i) => {
     const intel = Object.assign(deriveIntel(p), INTEL_OVERRIDES[p.company] || {});
