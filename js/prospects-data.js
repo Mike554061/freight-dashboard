@@ -86,10 +86,10 @@ const INTEL_OVERRIDES = {
     painPoints:['Appointment-tight retail DC delivery','Local reefer capacity at the facility','Temp integrity door-to-door'],
     likelyLanes:['Solon → Midwest retail DCs','Oakwood Village → NE-Ohio retail/foodservice','Rail/port drayage → Solon'] },
   'Great Lakes Cold Logistics': { ownFleet:'Yes — asset-based reefer + LTL consolidation',
-    approach:'Carrier-to-carrier: be their overflow/subcontract reefer when their fleet is tight, especially the Cleveland↔Pittsburgh corridor you both run. Go straight to dispatch (Eric Vickers x727) or Jim Short (Sr Dir Logistics) — fastest yes in the batch, no procurement.',
+    approach:'NEO networking play, not a Pittsburgh lane. They’re in Solon — around the corner from our NEO base — so build the relationship as their go-to local NEO reefer for short-notice / overflow drops and trade referrals. We do NOT chase their Pittsburgh dock-to-dock (no spare truck capacity for that corridor). Relationship-first: dispatch Eric Vickers (x727) or Jim Short (Sr Dir Logistics).',
     triggers:['They run their own reefer fleet — overflow spikes when capacity is tight','LTL consolidation → partial loads they’ll hand off','Shared NE-Ohio + Pittsburgh corridor'],
     painPoints:['Overflow coverage without margin loss','Reefer-qualified partner carriers','Weekend/holiday capacity'],
-    likelyLanes:['Solon → Pittsburgh (their corridor — offer backup)','Cleveland → Midwest (their overflow)','NE-Ohio LTL consolidation legs'] },
+    likelyLanes:['NEO local drops (their overflow, short-notice)','Cleveland / Solon → NE-Ohio retail & foodservice','Local reefer runs when their trucks are committed'] },
 };
 
 /* ---------- Apollo-sourced live leads (Greater Cleveland medical + cold-chain) ---------- */
@@ -175,8 +175,8 @@ function buildProspects() {
       url:'https://www.onelineage.com/facilities/solon',
       contact:{ name:'', title:'Facility Transportation Mgr / Carrier Onboarding', email:'', phone:'800-678-7271', linkedin:'' } },
     { company:'Great Lakes Cold Logistics', type:'3pl', category:'reefer', city:'Solon', state:'OH',
-      about:'Independent cold-storage + asset-based reefer carrier / LTL consolidator (Polar 3PL; USDOT 1325925), Solon OH roots with transportation dispatch in the Pittsburgh area (Warrendale/Cranberry PA) + Worcester MA. Runs its own refrigerated fleet nationwide — a peer carrier whose NE-Ohio + Cleveland↔Pittsburgh lanes overlap yours.',
-      signals:['Runs own reefer fleet → carrier-to-carrier overflow play','LTL consolidation + asset TL — tight-capacity spillover','Cleveland↔Pittsburgh corridor overlaps your lanes'],
+      about:'Independent cold-storage + asset-based reefer carrier / LTL consolidator (Polar 3PL; USDOT 1325925), Solon OH roots with transportation dispatch in the Pittsburgh area (Warrendale/Cranberry PA) + Worcester MA. Runs its own refrigerated fleet nationwide. Solon HQ is minutes from our NEO base — a peer carrier and a local networking relationship, not a Pittsburgh-lane play.',
+      signals:['Solon HQ — around the corner from our NEO ops','NEO networking / referrals, not their Pittsburgh dock-to-dock','Peer reefer carrier — local overflow + relationship'],
       url:'https://www.drivegreatlakes.com/',
       contact:{ name:'Eric Vickers', title:'Dispatch Coordinator (carrier relations) — x727; also Jim Short, Sr Dir Logistics', email:'evickers@glclogistics.com', phone:'724-741-9600', linkedin:'' } },
   ];
