@@ -80,6 +80,16 @@ const INTEL_OVERRIDES = {
     triggers:['Frozen IQF imports need reefer trucks on the outbound','No owned fleet','Growing import volume (~110 shipments)'],
     painPoints:['Frozen temp integrity in transit','Drayage timing from port/rail ramp','Small-drop distribution economics'],
     likelyLanes:['Cold storage → Midwest foodservice buyers','Port/rail ramp → Cleveland cold storage (drayage)','Cleveland → regional retail (frozen)'] },
+  'Lineage (Solon / Oakwood Village)': { ownFleet:'Yes — integrated/managed transportation (brokers to carriers)',
+    approach:'Get on Lineage’s carrier network for NE-Ohio outbound — be the local reefer that runs Solon/Oakwood Village → regional retail DCs. Start at facility transportation, not corporate; national onboarding is slow.',
+    triggers:['480+ site network leans on local reefer carriers for last-leg distribution','You’re Cleveland-based reefer, minutes from Solon & Oakwood Village','Retail DC delivery windows they must hit'],
+    painPoints:['Appointment-tight retail DC delivery','Local reefer capacity at the facility','Temp integrity door-to-door'],
+    likelyLanes:['Solon → Midwest retail DCs','Oakwood Village → NE-Ohio retail/foodservice','Rail/port drayage → Solon'] },
+  'Great Lakes Cold Logistics': { ownFleet:'Yes — asset-based reefer + LTL consolidation',
+    approach:'Carrier-to-carrier: be their overflow/subcontract reefer when their fleet is tight, especially the Cleveland↔Pittsburgh corridor you both run. Go straight to dispatch (Eric Vickers x727) or Jim Short (Sr Dir Logistics) — fastest yes in the batch, no procurement.',
+    triggers:['They run their own reefer fleet — overflow spikes when capacity is tight','LTL consolidation → partial loads they’ll hand off','Shared NE-Ohio + Pittsburgh corridor'],
+    painPoints:['Overflow coverage without margin loss','Reefer-qualified partner carriers','Weekend/holiday capacity'],
+    likelyLanes:['Solon → Pittsburgh (their corridor — offer backup)','Cleveland → Midwest (their overflow)','NE-Ohio LTL consolidation legs'] },
 };
 
 /* ---------- Apollo-sourced live leads (Greater Cleveland medical + cold-chain) ---------- */
@@ -159,6 +169,16 @@ function buildProspects() {
       signals:['Frozen IQF import → drayage in + frozen distribution out','Container-import driven, growing volume','No owned fleet — small team'],
       url:'https://panjiva.com/Oriental-Better-Foods-Llc/230098556',
       contact:{ name:'', title:'Owner / Import Operations', email:'', phone:'', linkedin:'' } },
+    { company:'Lineage (Solon / Oakwood Village)', type:'coldstorage', category:'reefer', city:'Solon', state:'OH',
+      about:'World’s largest cold-storage REIT (480+ sites, 18 countries) with integrated transportation. NE-Ohio facilities: Solon (6531 Cochran Rd — the former Great Lakes Cold Storage it bought in 2021) and Oakwood Village (199 Oakleaf Oval), plus two Columbus DCs. Regional distribution centers moving frozen/refrigerated for major food shippers.',
+      signals:['Local outbound reefer from Solon/Oakwood Village → retail DCs','Integrated transportation — uses carriers at facility level','National account: start local, long cycle'],
+      url:'https://www.onelineage.com/facilities/solon',
+      contact:{ name:'', title:'Facility Transportation Mgr / Carrier Onboarding', email:'', phone:'800-678-7271', linkedin:'' } },
+    { company:'Great Lakes Cold Logistics', type:'3pl', category:'reefer', city:'Solon', state:'OH',
+      about:'Independent cold-storage + asset-based reefer carrier / LTL consolidator (Polar 3PL; USDOT 1325925), Solon OH roots with transportation dispatch in the Pittsburgh area (Warrendale/Cranberry PA) + Worcester MA. Runs its own refrigerated fleet nationwide — a peer carrier whose NE-Ohio + Cleveland↔Pittsburgh lanes overlap yours.',
+      signals:['Runs own reefer fleet → carrier-to-carrier overflow play','LTL consolidation + asset TL — tight-capacity spillover','Cleveland↔Pittsburgh corridor overlaps your lanes'],
+      url:'https://www.drivegreatlakes.com/',
+      contact:{ name:'Eric Vickers', title:'Dispatch Coordinator (carrier relations) — x727; also Jim Short, Sr Dir Logistics', email:'evickers@glclogistics.com', phone:'724-741-9600', linkedin:'' } },
   ];
   const seeded = R.map((p, i) => {
     const intel = Object.assign(deriveIntel(p), INTEL_OVERRIDES[p.company] || {});
