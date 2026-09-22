@@ -173,7 +173,7 @@ function buildProspects() {
       about:'World’s largest cold-storage REIT (480+ sites, 18 countries) with integrated transportation. NE-Ohio facilities: Solon (6531 Cochran Rd — the former Great Lakes Cold Storage it bought in 2021) and Oakwood Village (199 Oakleaf Oval), plus two Columbus DCs. Regional distribution centers moving frozen/refrigerated for major food shippers.',
       signals:['Local outbound reefer from Solon/Oakwood Village → retail DCs','Integrated transportation — uses carriers at facility level','National account: start local, long cycle'],
       url:'https://www.onelineage.com/facilities/solon',
-      contact:{ name:'', title:'Facility Transportation Mgr / Carrier Onboarding', email:'', phone:'800-678-7271', linkedin:'' } },
+      contact:{ name:'', title:'Facility Transportation Mgr / Carrier Onboarding (start at Cleveland/Solon facility)', email:'', phone:'800-678-7271', linkedin:'' } },
     { company:'Great Lakes Cold Logistics', type:'3pl', category:'reefer', city:'Solon', state:'OH',
       about:'Independent cold-storage + asset-based reefer carrier / LTL consolidator (Polar 3PL; USDOT 1325925), Solon OH roots with transportation dispatch in the Pittsburgh area (Warrendale/Cranberry PA) + Worcester MA. Runs its own refrigerated fleet nationwide. Solon HQ is minutes from our NEO base — a peer carrier and a local networking relationship, not a Pittsburgh-lane play.',
       signals:['Solon HQ — around the corner from our NEO ops','NEO networking / referrals, not their Pittsburgh dock-to-dock','Peer reefer carrier — local overflow + relationship'],
