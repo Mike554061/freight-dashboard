@@ -81,7 +81,7 @@ function rowHtml(p){
     <td class="sub">${p.city}, ${p.state}</td>
     <td class="sub">${contact}</td>
     <td><span class="status-pill" style="border-color:${P_COLOR[p.status]};color:${P_COLOR[p.status]}">${p.status}</span></td>
-    <td><button class="btn ghost row-export" data-id="${p.id}" title="Download this account and everything behind it (Word doc)" style="padding:4px 10px;font-size:12px">⤓ Export</button></td>
+    <td><button class="btn ghost row-export" data-id="${p.id}" title="Download this account and everything behind it (CSV)" style="padding:4px 10px;font-size:12px">⤓ Export</button></td>
   </tr>`;
 }
 function renderBoard(){
@@ -198,54 +198,50 @@ function openDrawer(id, angle){
   const dx=$('#drawer-export'); if(dx) dx.onclick=()=>exportAccount(id, drawerAngle);
   $('#drawer').classList.add('open');
 }
-/* =====================  ACCOUNT EXPORT  =====================
- * One click → downloads a Word-compatible .doc with the account and everything behind it:
- * pipeline status/notes, fit + breakdown, account intelligence, about/signals/source,
- * saved contact, all 3 outreach angles, the 5-touch cadence, objection handling.
- * Broker-facing view mode drops the internal-only sections (same rule as the screen). */
-function _esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function _br(v){ return _esc(v).replace(/\n/g,'<br>'); }
-function _ul(arr){ return arr && arr.length ? '<ul>'+arr.map(x=>'<li>'+_esc(x)+'</li>').join('')+'</ul>' : '<p class="muted">None listed.</p>'; }
-function _kv(k,v){ return `<p><b>${_esc(k)}:</b> ${_esc(v||'—')}</p>`; }
+/* =====================  ACCOUNT EXPORT (CSV)  =====================
+ * One row per account, one column per field — opens in Excel / Google Sheets.
+ * Columns: pipeline status/notes, fit + breakdown, account intelligence, about/signals/source,
+ * saved contact + look-up links, all 3 outreach angles, the 5-touch cadence, objection handling.
+ * Lists are joined with " | "; email bodies keep their line breaks inside the cell.
+ * Broker-facing view mode drops the internal-only columns (fit + intel), same rule as the screen. */
 const _CAT = { reefer:'Reefer', dry:'Dry', both:'Reefer + Dry' };
 const _GROUP = { cold:'Cold chain / mixed', dry:'Dry', overflow:'Overflow fill (own fleet)', other:'Other play' };
-function accountBriefBody(p, angle){
-  const broker = document.body.classList.contains('broker-facing');
-  const it = p.intel || {}, c = p.contact || {}, ak = angle || 'overflow';
-  const angles = outreachAngles(p), seq = outreachSequence(p, ak), objs = objections(p);
-  const date = new Date().toISOString().slice(0,10);
-  const linkedin=`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.company+' transportation logistics manager')}`;
-  const apollo=`https://app.apollo.io/#/companies?qOrganizationName=${encodeURIComponent(p.company)}`;
-  let h = `<h1>${_esc(p.company)}</h1>
-<p class="meta">${_esc(TYPE_LABEL[p.type]||p.type)} · ${_esc(p.city)}, ${_esc(p.state)} · ${_esc(_CAT[p.category]||p.category)}${p.segment==='snap-model'?' · SNAP model — '+_esc(_GROUP[p.group]||p.group):''}${p.warm?' · Warm':''}<br>Exported ${date} from SupplyNow FleetView${broker?' (broker-facing view)':''}</p>
-<h2>Pipeline</h2>${_kv('Status', p.status||'New')}<p><b>Notes:</b><br>${p.notes?_br(p.notes):'<span class="muted">No notes yet.</span>'}</p>`;
-  if(!broker){
-    const ss=p.subScores||{};
-    h += `<h2>Fit</h2><p><b>${_esc(p.fitScore)}/100 — ${_esc(p.fitLabel)}</b></p>${_ul(p.fitReasons)}
-<p><b>Breakdown:</b> Commodity ${_esc(ss.commodity)} · Need ${_esc(ss.need)} · Proximity ${_esc(ss.proximity)} · Winnability ${_esc(ss.winnability)}</p>
-<h2>Account intelligence</h2>${_kv('Own fleet', it.ownFleet)}${_kv('Best angle', it.approach)}${_kv('Deal size', it.dealPotential)}${_kv('Who to reach', it.decisionMaker)}
-<h3>Likely lanes</h3>${_ul(it.likelyLanes)}<h3>Why-now triggers</h3>${_ul(it.triggers)}<h3>Pain points</h3>${_ul(it.painPoints)}`;
-  }
-  h += `<h2>About</h2><p>${_esc(p.about)}</p>${p.signals&&p.signals.length?'<h3>Signals</h3>'+_ul(p.signals):''}
-${p.url?`<p><b>Source:</b> <a href="${_esc(p.url)}">${_esc(p.url)}</a></p>`:''}
-<h2>Contact</h2>${_kv('Name', c.name)}${_kv('Title', c.title)}${_kv('Email', c.email)}${_kv('Phone', c.phone)}
-<p><b>Look-ups:</b> <a href="${_esc(apollo)}">Apollo company search</a> · <a href="${_esc(linkedin)}">LinkedIn people search</a></p>
-<h2>Outreach angles</h2>${angles.map(a=>`<h3>${_esc(a.label)}</h3><p><b>Subject:</b> ${_esc(a.subject)}</p><p>${_br(a.body)}</p>`).join('')}
-<h2>5-touch cadence <span class="muted">(${_esc((angles.find(a=>a.key===ak)||angles[0]).label)} angle)</span></h2>${seq.map(t=>`<h3>Day ${_esc(t.day)} · ${_esc(t.channel)} — ${_esc(t.label)}</h3>${t.subject?`<p><b>Subject:</b> ${_esc(t.subject)}</p>`:''}<p>${_br(t.body)}</p>`).join('')}
-<h2>Objection handling</h2>${objs.map(o=>`<p><b>${_esc(o.q)}</b><br>${_esc(o.a)}</p>`).join('')}`;
-  return h;
+function _j(arr){ return (arr||[]).join(' | '); }
+function accountCsvRow(p, angle, broker){
+  const it=p.intel||{}, c=p.contact||{}, ss=p.subScores||{}, ak=angle||'overflow';
+  const angles=outreachAngles(p), seq=outreachSequence(p, ak);
+  const r={ 'Company':p.company, 'Type':TYPE_LABEL[p.type]||p.type, 'Freight':_CAT[p.category]||p.category,
+    'City':p.city, 'State':p.state, 'SNAP group':p.segment==='snap-model'?(_GROUP[p.group]||p.group):'', 'Warm':p.warm?'Yes':'',
+    'Status':p.status||'New', 'Notes':p.notes||'' };
+  if(!broker) Object.assign(r, { 'Fit score':p.fitScore, 'Fit label':p.fitLabel, 'Fit reasons':_j(p.fitReasons),
+    'Commodity':ss.commodity, 'Need':ss.need, 'Proximity':ss.proximity, 'Winnability':ss.winnability,
+    'Own fleet':it.ownFleet, 'Best angle':it.approach, 'Deal size':it.dealPotential, 'Who to reach':it.decisionMaker,
+    'Likely lanes':_j(it.likelyLanes), 'Why-now triggers':_j(it.triggers), 'Pain points':_j(it.painPoints) });
+  Object.assign(r, { 'About':p.about, 'Signals':_j(p.signals), 'Source URL':p.url||'',
+    'Contact name':c.name||'', 'Contact title':c.title||'', 'Contact email':c.email||'', 'Contact phone':c.phone||'', 'Contact LinkedIn':c.linkedin||'',
+    'Apollo search':`https://app.apollo.io/#/companies?qOrganizationName=${encodeURIComponent(p.company)}`,
+    'LinkedIn search':`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.company+' transportation logistics manager')}` });
+  angles.forEach(a=>{ r[`Email (${a.label}) subject`]=a.subject; r[`Email (${a.label}) body`]=a.body; });
+  r['Cadence angle']=(angles.find(a=>a.key===ak)||angles[0]).label;
+  seq.forEach(t=>{ r[`Day ${t.day} ${t.channel} (${t.label})`]=(t.subject?'Subject: '+t.subject+'\n\n':'')+t.body; });
+  r['Objection handling']=objections(p).map(o=>o.q+' → '+o.a).join('\n');
+  return r;
 }
-function _wordDoc(title, body){
-  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${_esc(title)}</title>
-<style>body{font-family:Arial,sans-serif;font-size:10.5pt;color:#111}h1{font-size:18pt;margin:0 0 4px}h2{font-size:13pt;margin:18px 0 6px;border-bottom:1px solid #ccc}h3{font-size:11pt;margin:12px 0 4px}p{margin:0 0 8px}li{margin-bottom:3px}.meta{color:#555;font-size:9.5pt}.muted{color:#777}a{color:#1a56db}table{border-collapse:collapse;width:100%;font-size:9.5pt}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left;vertical-align:top}th{background:#eee}</style></head><body>${body}</body></html>`;
+function _cell(v){
+  let s=String(v==null?'':v);
+  if(/^[=+\-@]/.test(s)) s="'"+s;            // keep Excel/Sheets from reading a cell as a formula
+  return '"'+s.replace(/"/g,'""')+'"';
 }
-function accountBriefHtml(p, angle){ return _wordDoc(p.company+' — Account Brief', accountBriefBody(p, angle)); }
-function _download(html, name){
-  const url=URL.createObjectURL(new Blob(['﻿'+html],{type:'application/msword'}));
+function _csv(rows){
+  const cols=[]; rows.forEach(r=>Object.keys(r).forEach(k=>{ if(!cols.includes(k)) cols.push(k); }));
+  return [cols.map(_cell).join(',')].concat(rows.map(r=>cols.map(k=>_cell(r[k])).join(','))).join('\r\n');
+}
+function _download(text, name){
+  const url=URL.createObjectURL(new Blob(['﻿'+text],{type:'text/csv;charset=utf-8'}));
   const a=document.createElement('a'); a.href=url; a.download=name.replace(/[\\/:*?"<>|]+/g,'-'); document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url), 4000);
 }
-/* ---- multi-select: checkbox per row + select-all (shown rows) → one combined Word doc ---- */
+/* ---- multi-select: checkbox per row + select-all (shown rows) → one CSV, one row per account ---- */
 function toggleSel(id, on){ on?P.selected.add(id):P.selected.delete(id); const tr=$(`#tbody tr[data-id="${id}"]`); if(tr) tr.classList.toggle('sel',on); updateBulk(); }
 function clearSel(){ P.selected.clear(); render(); }
 function updateBulk(){
@@ -262,17 +258,14 @@ function exportSelected(){
   const hidden=full.filter(p=>!shownIds.has(p.id)).sort((a,b)=>b.fitScore-a.fitScore);
   const list=[...P.filtered, ...hidden].filter(p=>P.selected.has(p.id)); if(!list.length){ toast('Select at least one lead','bad'); return; }
   const broker=document.body.classList.contains('broker-facing'), date=new Date().toISOString().slice(0,10);
-  const idx=`<h1>Account Briefs — ${list.length} account${list.length>1?'s':''}</h1>
-<p class="meta">Exported ${date} from SupplyNow FleetView${broker?' (broker-facing view)':''}. Each account follows on its own page.</p>
-<table><tr><th>#</th><th>Company</th><th>City</th><th>Type</th><th>Freight</th>${broker?'':'<th>Fit</th>'}<th>Status</th></tr>${list.map((p,i)=>`<tr><td>${i+1}</td><td>${_esc(p.company)}</td><td>${_esc(p.city)}, ${_esc(p.state)}</td><td>${_esc(TYPE_LABEL[p.type]||p.type)}${p.segment==='snap-model'?' · SNAP '+_esc(p.group):''}</td><td>${_esc(_CAT[p.category]||p.category)}</td>${broker?'':`<td>${_esc(p.fitScore)} ${_esc(p.fitLabel)}</td>`}<td>${_esc(p.status||'New')}</td></tr>`).join('')}</table>`;
-  const body=idx+list.map(p=>'<br clear="all" style="page-break-before:always">'+accountBriefBody(p)).join('');
   const label=`${list.length} account${list.length>1?'s':''}`;
-  _download(_wordDoc(`Account Briefs — ${label}`, body), `Account Briefs - ${label} - ${date}.doc`);
-  toast(`Exported ${list.length} account${list.length>1?'s':''}`,'good');
+  _download(_csv(list.map(p=>accountCsvRow(p, null, broker))), `Accounts - ${label} - ${date}.csv`);
+  toast(`Exported ${label}`,'good');
 }
 function exportAccount(id, angle){
   const p=findP(id); if(!p) return;
-  _download(accountBriefHtml(p, angle), p.company+' - Account Brief - '+new Date().toISOString().slice(0,10)+'.doc');
+  const broker=document.body.classList.contains('broker-facing');
+  _download(_csv([accountCsvRow(p, angle, broker)]), p.company+' - Account - '+new Date().toISOString().slice(0,10)+'.csv');
   toast('Exported '+p.company,'good');
 }
 

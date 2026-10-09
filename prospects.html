@@ -98,7 +98,7 @@
     <section class="main">
       <div class="toolbar">
         <div class="count"><span id="count-num">0</span> prospects</div>
-        <div id="bulk-bar" style="display:none;align-items:center;gap:8px"><span id="sel-num" style="font-size:13px;font-weight:600;color:var(--brand)">0 selected</span><button class="btn primary" id="btn-export-sel" style="padding:5px 12px;font-size:12px" title="One Word doc: index + every selected account on its own page">⤓ Export selected</button><button class="btn ghost" id="btn-clear-sel" style="padding:5px 10px;font-size:12px">Clear</button></div>
+        <div id="bulk-bar" style="display:none;align-items:center;gap:8px"><span id="sel-num" style="font-size:13px;font-weight:600;color:var(--brand)">0 selected</span><button class="btn primary" id="btn-export-sel" style="padding:5px 12px;font-size:12px" title="One CSV: a row per selected account, every field in its own column">⤓ Export selected</button><button class="btn ghost" id="btn-clear-sel" style="padding:5px 10px;font-size:12px">Clear</button></div>
         <div class="pipe-strip" id="pipe-strip"></div>
         <div class="spacer" style="flex:1"></div>
         <select class="sort-select" id="sort-select">
@@ -114,7 +114,7 @@
         <div class="tablewrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
         <div class="drawer" id="drawer">
           <header><div><div style="font-size:11px;letter-spacing:1px;color:var(--txt-3);text-transform:uppercase">Prospect</div></div>
-            <div style="display:flex;gap:8px;align-items:center"><button class="btn ghost" id="drawer-export" title="Download this account and everything behind it (Word doc)" style="padding:4px 10px;font-size:12px">⤓ Export</button><button class="close" id="drawer-close">×</button></div></header>
+            <div style="display:flex;gap:8px;align-items:center"><button class="btn ghost" id="drawer-export" title="Download this account and everything behind it (CSV)" style="padding:4px 10px;font-size:12px">⤓ Export</button><button class="close" id="drawer-close">×</button></div></header>
           <div class="body" id="drawer-body"></div>
         </div>
       </div>
