@@ -57,12 +57,13 @@ function renderPipeStrip(){
 
 const COLS=[{k:'fitScore',l:'Fit'},{k:'company',l:'Company'},{k:'type',l:'Type'},{k:'category',l:'Freight'},{k:'city',l:'City'},{k:'contact',l:'Contact'},{k:'status',l:'Status'}];
 function renderTable(){
-  $('#thead').innerHTML='<tr>'+COLS.map(c=>{const a=P.sortKey===c.k;return `<th data-k="${c.k}" class="${c.k==='fitScore'?'internal-only':''}">${c.l} ${a?`<span class="arrow">${P.sortDir==='asc'?'▲':'▼'}</span>`:''}</th>`;}).join('')+'</tr>';
+  $('#thead').innerHTML='<tr>'+COLS.map(c=>{const a=P.sortKey===c.k;return `<th data-k="${c.k}" class="${c.k==='fitScore'?'internal-only':''}">${c.l} ${a?`<span class="arrow">${P.sortDir==='asc'?'▲':'▼'}</span>`:''}</th>`;}).join('')+'<th title="Export the account and everything behind it">Export</th></tr>';
   $$('#thead th').forEach(th=>th.onclick=()=>{const k=th.dataset.k; if(P.sortKey===k)P.sortDir=P.sortDir==='asc'?'desc':'asc'; else{P.sortKey=k;P.sortDir=k==='fitScore'?'desc':'asc';} sortNow(); render();});
   const tb=$('#tbody');
-  if(!P.filtered.length){ tb.innerHTML=`<tr><td colspan="${COLS.length}"><div class="empty">No prospects match.</div></td></tr>`; return; }
+  if(!P.filtered.length){ tb.innerHTML=`<tr><td colspan="${COLS.length+1}"><div class="empty">No prospects match.</div></td></tr>`; return; }
   tb.innerHTML=P.filtered.map(rowHtml).join('');
   $$('#tbody tr').forEach(tr=>tr.onclick=()=>openDrawer(tr.dataset.id));
+  $$('#tbody .row-export').forEach(b=>b.onclick=e=>{ e.stopPropagation(); exportAccount(b.dataset.id); });
 }
 function rowHtml(p){
   const contact = p.contact.email ? (p.contact.name||p.contact.email) : (p.contact.phone || '<span class="muted">enrich</span>');
@@ -76,6 +77,7 @@ function rowHtml(p){
     <td class="sub">${p.city}, ${p.state}</td>
     <td class="sub">${contact}</td>
     <td><span class="status-pill" style="border-color:${P_COLOR[p.status]};color:${P_COLOR[p.status]}">${p.status}</span></td>
+    <td><button class="btn ghost row-export" data-id="${p.id}" title="Download this account and everything behind it (Word doc)" style="padding:4px 10px;font-size:12px">⤓ Export</button></td>
   </tr>`;
 }
 function renderBoard(){
@@ -189,8 +191,57 @@ function openDrawer(id, angle){
   $$('#drawer .seq-head[data-i]').forEach(h=>h.onclick=()=>{ const b=$('#seq-'+h.dataset.i); b.classList.toggle('open'); h.querySelector('.seq-caret').textContent = b.classList.contains('open')?'▾':'▸'; });
   $$('#drawer .seq-head[data-obj]').forEach(h=>h.onclick=()=>{ const b=$('#obj-'+h.dataset.obj); b.classList.toggle('open'); h.querySelector('.seq-caret').textContent = b.classList.contains('open')?'▾':'▸'; });
   $$('#drawer .mini-copy').forEach(b=>b.onclick=()=>{ const t=seq[b.dataset.i]; navigator.clipboard?.writeText((t.subject?t.subject+'\n\n':'')+t.body); toast(t.label+' copied','good'); });
+  const dx=$('#drawer-export'); if(dx) dx.onclick=()=>exportAccount(id, drawerAngle);
   $('#drawer').classList.add('open');
 }
+/* =====================  ACCOUNT EXPORT  =====================
+ * One click → downloads a Word-compatible .doc with the account and everything behind it:
+ * pipeline status/notes, fit + breakdown, account intelligence, about/signals/source,
+ * saved contact, all 3 outreach angles, the 5-touch cadence, objection handling.
+ * Broker-facing view mode drops the internal-only sections (same rule as the screen). */
+function _esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function _br(v){ return _esc(v).replace(/\n/g,'<br>'); }
+function _ul(arr){ return arr && arr.length ? '<ul>'+arr.map(x=>'<li>'+_esc(x)+'</li>').join('')+'</ul>' : '<p class="muted">None listed.</p>'; }
+function _kv(k,v){ return `<p><b>${_esc(k)}:</b> ${_esc(v||'—')}</p>`; }
+const _CAT = { reefer:'Reefer', dry:'Dry', both:'Reefer + Dry' };
+const _GROUP = { cold:'Cold chain / mixed', dry:'Dry', overflow:'Overflow fill (own fleet)', other:'Other play' };
+function accountBriefHtml(p, angle){
+  const broker = document.body.classList.contains('broker-facing');
+  const it = p.intel || {}, c = p.contact || {}, ak = angle || 'overflow';
+  const angles = outreachAngles(p), seq = outreachSequence(p, ak), objs = objections(p);
+  const date = new Date().toISOString().slice(0,10);
+  const linkedin=`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.company+' transportation logistics manager')}`;
+  const apollo=`https://app.apollo.io/#/companies?qOrganizationName=${encodeURIComponent(p.company)}`;
+  let h = `<h1>${_esc(p.company)}</h1>
+<p class="meta">${_esc(TYPE_LABEL[p.type]||p.type)} · ${_esc(p.city)}, ${_esc(p.state)} · ${_esc(_CAT[p.category]||p.category)}${p.segment==='snap-model'?' · SNAP model — '+_esc(_GROUP[p.group]||p.group):''}${p.warm?' · Warm':''}<br>Exported ${date} from SupplyNow FleetView${broker?' (broker-facing view)':''}</p>
+<h2>Pipeline</h2>${_kv('Status', p.status||'New')}<p><b>Notes:</b><br>${p.notes?_br(p.notes):'<span class="muted">No notes yet.</span>'}</p>`;
+  if(!broker){
+    const ss=p.subScores||{};
+    h += `<h2>Fit</h2><p><b>${_esc(p.fitScore)}/100 — ${_esc(p.fitLabel)}</b></p>${_ul(p.fitReasons)}
+<p><b>Breakdown:</b> Commodity ${_esc(ss.commodity)} · Need ${_esc(ss.need)} · Proximity ${_esc(ss.proximity)} · Winnability ${_esc(ss.winnability)}</p>
+<h2>Account intelligence</h2>${_kv('Own fleet', it.ownFleet)}${_kv('Best angle', it.approach)}${_kv('Deal size', it.dealPotential)}${_kv('Who to reach', it.decisionMaker)}
+<h3>Likely lanes</h3>${_ul(it.likelyLanes)}<h3>Why-now triggers</h3>${_ul(it.triggers)}<h3>Pain points</h3>${_ul(it.painPoints)}`;
+  }
+  h += `<h2>About</h2><p>${_esc(p.about)}</p>${p.signals&&p.signals.length?'<h3>Signals</h3>'+_ul(p.signals):''}
+${p.url?`<p><b>Source:</b> <a href="${_esc(p.url)}">${_esc(p.url)}</a></p>`:''}
+<h2>Contact</h2>${_kv('Name', c.name)}${_kv('Title', c.title)}${_kv('Email', c.email)}${_kv('Phone', c.phone)}
+<p><b>Look-ups:</b> <a href="${_esc(apollo)}">Apollo company search</a> · <a href="${_esc(linkedin)}">LinkedIn people search</a></p>
+<h2>Outreach angles</h2>${angles.map(a=>`<h3>${_esc(a.label)}</h3><p><b>Subject:</b> ${_esc(a.subject)}</p><p>${_br(a.body)}</p>`).join('')}
+<h2>5-touch cadence <span class="muted">(${_esc((angles.find(a=>a.key===ak)||angles[0]).label)} angle)</span></h2>${seq.map(t=>`<h3>Day ${_esc(t.day)} · ${_esc(t.channel)} — ${_esc(t.label)}</h3>${t.subject?`<p><b>Subject:</b> ${_esc(t.subject)}</p>`:''}<p>${_br(t.body)}</p>`).join('')}
+<h2>Objection handling</h2>${objs.map(o=>`<p><b>${_esc(o.q)}</b><br>${_esc(o.a)}</p>`).join('')}`;
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${_esc(p.company)} — Account Brief</title>
+<style>body{font-family:Arial,sans-serif;font-size:10.5pt;color:#111}h1{font-size:18pt;margin:0 0 4px}h2{font-size:13pt;margin:18px 0 6px;border-bottom:1px solid #ccc}h3{font-size:11pt;margin:12px 0 4px}p{margin:0 0 8px}li{margin-bottom:3px}.meta{color:#555;font-size:9.5pt}.muted{color:#777}a{color:#1a56db}</style></head><body>${h}</body></html>`;
+}
+function exportAccount(id, angle){
+  const p=findP(id); if(!p) return;
+  const html=accountBriefHtml(p, angle);
+  const name=(p.company+' - Account Brief - '+new Date().toISOString().slice(0,10)).replace(/[\\/:*?"<>|]+/g,'-')+'.doc';
+  const url=URL.createObjectURL(new Blob(['﻿'+html],{type:'application/msword'}));
+  const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  toast('Exported '+p.company,'good');
+}
+
 function closeDrawer(){ $('#drawer').classList.remove('open'); }
 
 let toastT; function toast(m,k=''){ const t=$('#toast'); t.textContent=m; t.className='toast show '+k; clearTimeout(toastT); toastT=setTimeout(()=>t.className='toast '+k,2400); }
