@@ -211,3 +211,8 @@ header > div[style*="display:flex"] { flex-wrap:nowrap; overflow-x:auto; scrollb
 header .nav-tabs::-webkit-scrollbar,
 header > div[style*="display:flex"]::-webkit-scrollbar { display:none; }
 header a.btn { white-space:nowrap; padding:7px 11px; }
+
+/* prospects multi-select checkboxes */
+.sel-cell input, #sel-all { width:15px; height:15px; cursor:pointer; accent-color:var(--brand); }
+#bulk-bar { flex-shrink:0; white-space:nowrap; }
+#bulk-bar .btn { white-space:nowrap; }

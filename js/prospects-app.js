@@ -3,7 +3,7 @@
  * =========================================================================== */
 'use strict';
 
-const P = { all:[], filtered:[], view:'table', sortKey:'fitScore', sortDir:'desc', enriched:false };
+const P = { all:[], filtered:[], view:'table', sortKey:'fitScore', sortDir:'desc', enriched:false, selected:new Set() };
 const P_STATUSES = ['New','Researching','Contacted','Meeting','Quoted','Won','Passed'];
 const P_COLOR = { New:'#6b7684', Researching:'#4c8dff', Contacted:'#f2a541', Meeting:'#c471ed', Quoted:'#00b4a6', Won:'#3fb950', Passed:'#f85149' };
 // TYPE_LABEL is defined in prospects-data.js (loaded first)
@@ -57,19 +57,23 @@ function renderPipeStrip(){
 
 const COLS=[{k:'fitScore',l:'Fit'},{k:'company',l:'Company'},{k:'type',l:'Type'},{k:'category',l:'Freight'},{k:'city',l:'City'},{k:'contact',l:'Contact'},{k:'status',l:'Status'}];
 function renderTable(){
-  $('#thead').innerHTML='<tr>'+COLS.map(c=>{const a=P.sortKey===c.k;return `<th data-k="${c.k}" class="${c.k==='fitScore'?'internal-only':''}">${c.l} ${a?`<span class="arrow">${P.sortDir==='asc'?'▲':'▼'}</span>`:''}</th>`;}).join('')+'<th title="Export the account and everything behind it">Export</th></tr>';
+  $('#thead').innerHTML='<tr><th style="width:34px" title="Select all shown"><input type="checkbox" id="sel-all"></th>'+COLS.map(c=>{const a=P.sortKey===c.k;return `<th data-k="${c.k}" class="${c.k==='fitScore'?'internal-only':''}">${c.l} ${a?`<span class="arrow">${P.sortDir==='asc'?'▲':'▼'}</span>`:''}</th>`;}).join('')+'<th title="Export the account and everything behind it">Export</th></tr>';
   $$('#thead th').forEach(th=>th.onclick=()=>{const k=th.dataset.k; if(P.sortKey===k)P.sortDir=P.sortDir==='asc'?'desc':'asc'; else{P.sortKey=k;P.sortDir=k==='fitScore'?'desc':'asc';} sortNow(); render();});
   const tb=$('#tbody');
-  if(!P.filtered.length){ tb.innerHTML=`<tr><td colspan="${COLS.length+1}"><div class="empty">No prospects match.</div></td></tr>`; return; }
+  if(!P.filtered.length){ tb.innerHTML=`<tr><td colspan="${COLS.length+2}"><div class="empty">No prospects match.</div></td></tr>`; return; }
   tb.innerHTML=P.filtered.map(rowHtml).join('');
   $$('#tbody tr').forEach(tr=>tr.onclick=()=>openDrawer(tr.dataset.id));
   $$('#tbody .row-export').forEach(b=>b.onclick=e=>{ e.stopPropagation(); exportAccount(b.dataset.id); });
+  $$('#tbody .sel-cell').forEach(td=>td.onclick=e=>{ e.stopPropagation(); const cb=td.querySelector('input'); if(e.target!==cb) cb.checked=!cb.checked; toggleSel(cb.dataset.id, cb.checked); });
+  const sa=$('#sel-all'); if(sa) sa.onchange=()=>{ P.filtered.forEach(p=>sa.checked?P.selected.add(p.id):P.selected.delete(p.id)); renderTable(); };
+  updateBulk();
 }
 function rowHtml(p){
   const contact = p.contact.email ? (p.contact.name||p.contact.email) : (p.contact.phone || '<span class="muted">enrich</span>');
   const srcTag = p.source==='apollo' ? ' <span class="pill" style="background:rgba(0,180,166,.14);color:#00b4a6">Apollo</span>' : '';
   const segTag = p.segment==='snap-model' ? ` <span class="pill" style="background:rgba(240,180,41,.15);color:#f0b429">SNAP model · ${({cold:'cold',dry:'dry',overflow:'overflow',other:'other'})[p.group]||''}</span>` : '';
-  return `<tr data-id="${p.id}">
+  return `<tr data-id="${p.id}"${P.selected.has(p.id)?' class="sel"':''}>
+    <td class="sel-cell" style="width:34px;cursor:pointer"><input type="checkbox" class="row-sel" data-id="${p.id}"${P.selected.has(p.id)?' checked':''}></td>
     <td class="internal-only"><span class="score ${fitCls(p.fitScore)}">${p.fitScore}</span></td>
     <td><div class="lane">${p.company}${p.warm?' <span class="pill" style="background:rgba(63,185,80,.15);color:#3fb950">warm</span>':''}${srcTag}${segTag}</div><div class="sub">${p.about.slice(0,54)}…</div></td>
     <td class="sub">${TYPE_LABEL[p.type]||p.type}</td>
@@ -205,7 +209,7 @@ function _ul(arr){ return arr && arr.length ? '<ul>'+arr.map(x=>'<li>'+_esc(x)+'
 function _kv(k,v){ return `<p><b>${_esc(k)}:</b> ${_esc(v||'—')}</p>`; }
 const _CAT = { reefer:'Reefer', dry:'Dry', both:'Reefer + Dry' };
 const _GROUP = { cold:'Cold chain / mixed', dry:'Dry', overflow:'Overflow fill (own fleet)', other:'Other play' };
-function accountBriefHtml(p, angle){
+function accountBriefBody(p, angle){
   const broker = document.body.classList.contains('broker-facing');
   const it = p.intel || {}, c = p.contact || {}, ak = angle || 'overflow';
   const angles = outreachAngles(p), seq = outreachSequence(p, ak), objs = objections(p);
@@ -229,16 +233,46 @@ ${p.url?`<p><b>Source:</b> <a href="${_esc(p.url)}">${_esc(p.url)}</a></p>`:''}
 <h2>Outreach angles</h2>${angles.map(a=>`<h3>${_esc(a.label)}</h3><p><b>Subject:</b> ${_esc(a.subject)}</p><p>${_br(a.body)}</p>`).join('')}
 <h2>5-touch cadence <span class="muted">(${_esc((angles.find(a=>a.key===ak)||angles[0]).label)} angle)</span></h2>${seq.map(t=>`<h3>Day ${_esc(t.day)} · ${_esc(t.channel)} — ${_esc(t.label)}</h3>${t.subject?`<p><b>Subject:</b> ${_esc(t.subject)}</p>`:''}<p>${_br(t.body)}</p>`).join('')}
 <h2>Objection handling</h2>${objs.map(o=>`<p><b>${_esc(o.q)}</b><br>${_esc(o.a)}</p>`).join('')}`;
-  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${_esc(p.company)} — Account Brief</title>
-<style>body{font-family:Arial,sans-serif;font-size:10.5pt;color:#111}h1{font-size:18pt;margin:0 0 4px}h2{font-size:13pt;margin:18px 0 6px;border-bottom:1px solid #ccc}h3{font-size:11pt;margin:12px 0 4px}p{margin:0 0 8px}li{margin-bottom:3px}.meta{color:#555;font-size:9.5pt}.muted{color:#777}a{color:#1a56db}</style></head><body>${h}</body></html>`;
+  return h;
+}
+function _wordDoc(title, body){
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${_esc(title)}</title>
+<style>body{font-family:Arial,sans-serif;font-size:10.5pt;color:#111}h1{font-size:18pt;margin:0 0 4px}h2{font-size:13pt;margin:18px 0 6px;border-bottom:1px solid #ccc}h3{font-size:11pt;margin:12px 0 4px}p{margin:0 0 8px}li{margin-bottom:3px}.meta{color:#555;font-size:9.5pt}.muted{color:#777}a{color:#1a56db}table{border-collapse:collapse;width:100%;font-size:9.5pt}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left;vertical-align:top}th{background:#eee}</style></head><body>${body}</body></html>`;
+}
+function accountBriefHtml(p, angle){ return _wordDoc(p.company+' — Account Brief', accountBriefBody(p, angle)); }
+function _download(html, name){
+  const url=URL.createObjectURL(new Blob(['﻿'+html],{type:'application/msword'}));
+  const a=document.createElement('a'); a.href=url; a.download=name.replace(/[\\/:*?"<>|]+/g,'-'); document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+/* ---- multi-select: checkbox per row + select-all (shown rows) → one combined Word doc ---- */
+function toggleSel(id, on){ on?P.selected.add(id):P.selected.delete(id); const tr=$(`#tbody tr[data-id="${id}"]`); if(tr) tr.classList.toggle('sel',on); updateBulk(); }
+function clearSel(){ P.selected.clear(); render(); }
+function updateBulk(){
+  const n=P.selected.size, bar=$('#bulk-bar'); if(!bar) return;
+  bar.style.display=n?'flex':'none';
+  const hidden=[...P.selected].filter(id=>!P.filtered.some(p=>p.id===id)).length;
+  $('#sel-num').textContent=n+' selected'+(hidden?` (${hidden} hidden by filters)`:'');
+  const sa=$('#sel-all'); if(sa){ const shown=P.filtered.filter(p=>P.selected.has(p.id)).length; sa.checked=!!P.filtered.length&&shown===P.filtered.length; sa.indeterminate=shown>0&&shown<P.filtered.length; }
+}
+function exportSelected(){
+  /* filters narrow P.all, so pull selections hidden by a filter from the full list (with saved pipeline data) */
+  const pipe=loadPP(), shownIds=new Set(P.filtered.map(p=>p.id));
+  const full=(PROSPECT_CONFIG.useMock ? buildProspects() : P.all).map(p=>Object.assign(p, pipe[p.id]||{status:'New',notes:''}));
+  const hidden=full.filter(p=>!shownIds.has(p.id)).sort((a,b)=>b.fitScore-a.fitScore);
+  const list=[...P.filtered, ...hidden].filter(p=>P.selected.has(p.id)); if(!list.length){ toast('Select at least one lead','bad'); return; }
+  const broker=document.body.classList.contains('broker-facing'), date=new Date().toISOString().slice(0,10);
+  const idx=`<h1>Account Briefs — ${list.length} account${list.length>1?'s':''}</h1>
+<p class="meta">Exported ${date} from SupplyNow FleetView${broker?' (broker-facing view)':''}. Each account follows on its own page.</p>
+<table><tr><th>#</th><th>Company</th><th>City</th><th>Type</th><th>Freight</th>${broker?'':'<th>Fit</th>'}<th>Status</th></tr>${list.map((p,i)=>`<tr><td>${i+1}</td><td>${_esc(p.company)}</td><td>${_esc(p.city)}, ${_esc(p.state)}</td><td>${_esc(TYPE_LABEL[p.type]||p.type)}${p.segment==='snap-model'?' · SNAP '+_esc(p.group):''}</td><td>${_esc(_CAT[p.category]||p.category)}</td>${broker?'':`<td>${_esc(p.fitScore)} ${_esc(p.fitLabel)}</td>`}<td>${_esc(p.status||'New')}</td></tr>`).join('')}</table>`;
+  const body=idx+list.map(p=>'<br clear="all" style="page-break-before:always">'+accountBriefBody(p)).join('');
+  const label=`${list.length} account${list.length>1?'s':''}`;
+  _download(_wordDoc(`Account Briefs — ${label}`, body), `Account Briefs - ${label} - ${date}.doc`);
+  toast(`Exported ${list.length} account${list.length>1?'s':''}`,'good');
 }
 function exportAccount(id, angle){
   const p=findP(id); if(!p) return;
-  const html=accountBriefHtml(p, angle);
-  const name=(p.company+' - Account Brief - '+new Date().toISOString().slice(0,10)).replace(/[\\/:*?"<>|]+/g,'-')+'.doc';
-  const url=URL.createObjectURL(new Blob(['﻿'+html],{type:'application/msword'}));
-  const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  _download(accountBriefHtml(p, angle), p.company+' - Account Brief - '+new Date().toISOString().slice(0,10)+'.doc');
   toast('Exported '+p.company,'good');
 }
 
@@ -247,6 +281,7 @@ function closeDrawer(){ $('#drawer').classList.remove('open'); }
 let toastT; function toast(m,k=''){ const t=$('#toast'); t.textContent=m; t.className='toast show '+k; clearTimeout(toastT); toastT=setTimeout(()=>t.className='toast '+k,2400); }
 
 function boot(){
+  $('#btn-export-sel').onclick=exportSelected; $('#btn-clear-sel').onclick=clearSel;
   $('#btn-search').onclick=run; $('#btn-refresh').onclick=run; $('#btn-clear').onclick=clearFilters; $('#drawer-close').onclick=closeDrawer;
   $$('.view-toggle button').forEach(b=>b.onclick=()=>{ P.view=b.dataset.view; $$('.view-toggle button').forEach(x=>x.classList.toggle('on',x===b)); render(); });
   $('#sort-select').onchange=e=>{ const [k,d]=e.target.value.split(':'); P.sortKey=k;P.sortDir=d; sortNow(); render(); };
