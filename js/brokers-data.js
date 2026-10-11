@@ -7,8 +7,8 @@
  * (linked to the real Drive docs + the generated one-pager).
  * =========================================================================== */
 
-const SN = { name:'Supply Now Inc.', mc:'MC 1660872', dot:'DOT 3976910', phone:'216-548-7070',
-             email:'dispatch@supplynow.org', rep:'Mike Cook', addr:'2800 Euclid Ave, Suite 310, Cleveland, OH 44115' };
+const SN = { name:'Supply Now Inc.', mc:'MC 1660872', dot:'DOT 3976910', phone:'440-554-2222',
+             email:'dispatch@supplynow.org', rep:'Mike Cook', addr:'600 Superior Ave E, Suite 1300 #17697330, Cleveland, OH 44114' };
 const SIG = `${SN.rep}\nSupplyNow — Asset-Based Reefer & Dry Carrier\n${SN.phone} · ${SN.email}\n${SN.mc} · ${SN.dot}`;
 
 const BROKER_CONFIG = { useMock:true, proxyUrl:'' };

@@ -29,7 +29,7 @@ const SRC_META = {
 };
 function srcMeta(s) { return SRC_META[s] || { short:'?', cls:'', dot:'', color:'#888' }; }
 
-const SIG = 'Mike Cook\nSupplyNow — Asset-Based Reefer & Dry Carrier\n216-548-7070 · dispatch@supplynow.org\nMC 1660872 · DOT 3976910';
+const SIG = 'Mike Cook\nSupplyNow — Asset-Based Reefer & Dry Carrier\n440-554-2222 · dispatch@supplynow.org\nMC 1660872 · DOT 3976910';
 
 function ageLabel(m) {
   if (m < 60) return `${m}m`;

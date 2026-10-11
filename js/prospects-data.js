@@ -17,7 +17,7 @@ const P_HOME = { city:'Cleveland', region:['Bedford Heights','Bedford','Tallmadg
  * Research leads below carry NO paid data — company + public main line only. */
 const PROSPECT_CONFIG = { useMock:true, proxyUrl:'', paidEnrichment:false };
 
-const SN = { name:'Supply Now Inc.', mc:'MC 1660872', dot:'DOT 3976910', phone:'216-548-7070', email:'dispatch@supplynow.org', rep:'Mike Cook' };
+const SN = { name:'Supply Now Inc.', mc:'MC 1660872', dot:'DOT 3976910', phone:'440-554-2222', email:'dispatch@supplynow.org', rep:'Mike Cook' };
 const SIG = `${SN.rep}\nSupplyNow — Asset-Based Reefer & Dry Carrier\n${SN.phone} · ${SN.email}\n${SN.mc} · ${SN.dot}`;
 const TYPE_LABEL = { manufacturer:'Manufacturer', coldstorage:'Cold Storage', '3pl':'3PL', distributor:'Distributor', brewery:'Brewery' };
 
