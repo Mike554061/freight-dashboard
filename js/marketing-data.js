@@ -23,7 +23,7 @@ const SN_IDENTITY = {
   brand: 'SupplyNow',
   mc: 'MC 1660872',
   dot: 'DOT 3976910',
-  hq: '600 Superior Ave E, Suite 1300 #17697330, Cleveland, OH 44114',
+  hq: '600 Superior Ave E, Suite 1300, Cleveland, OH 44114',
   phone: '440-554-2222',
   email: 'mike@supplynow.org',
   capabilities: [
